@@ -588,7 +588,6 @@ source = { editable = "." }
 dependencies = [
     { name = "fala-runtime" },
     { name = "pydantic" },
-    { name = "splot-runtime" },
     { name = "typing-extensions" },
 ]
 
@@ -599,6 +598,9 @@ dev = [
     { name = "pytest-cov" },
     { name = "ruff" },
 ]
+splot = [
+    { name = "splot-runtime" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -608,10 +610,10 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.1.1" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=5" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.5" },
-    { name = "splot-runtime", editable = "../splot" },
+    { name = "splot-runtime", marker = "extra == 'splot'", editable = "../splot" },
     { name = "typing-extensions", specifier = ">=4" },
 ]
-provides-extras = ["dev"]
+provides-extras = ["splot", "dev"]
 
 [[package]]
 name = "typing-extensions"

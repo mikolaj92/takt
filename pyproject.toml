@@ -1,8 +1,7 @@
 [project]
 name = "takt"
-version = "0.1.0"
-description = "Generyczny silnik kaskadowego przetwarzania hierarchicznego (cybernetyka / teoria systemów autonomicznych). Transport pionowy via fala, fuzja via splot."
-readme = "README.md"
+version = "0.1.1"
+description = "Generyczny mechanizm kaskadowego sterowania cybernetycznego (Hierarchical Orchestrator). Działa nad dowolnym drzewem stanu (dokumenty, kod źródłowy, dane chemiczne, grafy, agenci). Transport pionowy: fala. Redukcja entropii: splot. Zero wiedzy domenowej."
 authors = [
   { name = "mikolaj92", email = "mikolaj92@users.noreply.github.com" }
 ]
@@ -10,12 +9,12 @@ requires-python = ">=3.13"
 license = "MIT"
 dependencies = [
   "fala-runtime",
-  "splot-runtime",
   "pydantic>=2.13.4",
   "typing-extensions>=4",
 ]
 
 [project.optional-dependencies]
+splot = ["splot-runtime"]
 dev = [
   "pytest>=9.1.1",
   "pytest-cov>=5",

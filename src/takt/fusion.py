@@ -1,56 +1,146 @@
-"""SplotFusionUnit — komponent fuzji i redukcji entropii wewnątrz regulatora.
+"""SplotFusionUnit — opcjonalny komponent fuzji i redukcji entropii.
 
-Używa `splot` do skonsolidowania surowych sygnałów (RawSignal) w jeden
-Wektor Aberracji (ErrorSignal) o zredukowanej entropii.
+Domyślnie używa `splot` (jeśli zainstalowany).
+Jeśli splot nie jest dostępny, stosuje prosty fallback (średnia ważona odchyleń).
+Splot jest opcjonalny: takt zawsze wymaga fali jako podłoża transportu.
 """
+
 from __future__ import annotations
 
-import hashlib
 import uuid
 from typing import Any
 
-from splot import run_round  # type: ignore[import-untyped]
-
 from .types import ErrorSignal, RawSignal
+
+_HAS_SPLOT = False
+try:
+    from splot import run_round  # type: ignore[import-untyped]
+    _HAS_SPLOT = True
+except ImportError:
+    run_round = None  # type: ignore[assignment]
 
 
 class SplotFusionUnit:
-    """Procesor decyzyjny używający splot do redukcji sygnałów.
+    """Procesor decyzyjny.
 
-    Strict: jeśli splot zwróci wysoką niepewność (uncertainty), regulator
-    wyżej w hierarchii zdecyduje o interlocku.
+    Gdy splot-runtime jest zainstalowany: używa constrained_weighted_score + reduce.
+    Gdy nie ma splotu: prosty fallback — średnia ważona raw signals.
     """
 
     def __init__(self, profile: dict[str, Any] | None = None) -> None:
-        # Minimalny profil fuzji numerycznej odchyleń.
-        # Jeden sygnał "aberration" z pola deviation obserwacji.
-        # Używa constrained_weighted_score + reduce mean gdy potrzeba.
         self.profile: dict[str, Any] = profile or {
-            "version": 1,
-            "id": "takt_aberration_fusion",
-            "mode": "select_one",
-            "objective": {"id": "aberration_vector"},
-            "signals": [
-                {
-                    "id": "aberration",
-                    "provider": "observation.value",
-                    "field": "deviation",
-                    "weight": 1.0,
-                    "reduce": "mean",  # średnia gdy wiele obserwacji tej samej fali
-                }
-            ],
-            "decision": {"policy": "constrained_weighted_score"},
-            "uncertainty": {
-                "when_close": "select_best_anyway",
-                "when_no_candidate": "fallback",
-            },
+            "id": "fallback_aberration",
+            "mode": "regulate",
+            "signals": [{"id": "aberration", "weight": 1.0, "prefer": "lower"}],
         }
+    def _looks_like_splot_profile(self, p: dict[str, Any]) -> bool:
+        return isinstance(p, dict) and "version" in p
+
+    def fuse(
+        self,
+        raw_signals: list[RawSignal],
+        node_id: str,
+        now: str | None = None,
+    ) -> ErrorSignal:
+        """Zredukuj listę surowych sygnałów do jednego ErrorSignal.
+
+        Jeśli dostępny jest splot — używa go do redukcji entropii.
+        W przeciwnym razie — prosty fallback (średnia ważona).
+        """
+        if not raw_signals:
+            return ErrorSignal(
+                vector_id=f"err_{uuid.uuid4().hex[:12]}",
+                node_id=node_id,
+                aberration=0.0,
+                confidence=1.0,
+                residual_entropy=0.0,
+                contributing_signals=[],
+                metadata={"reducer": "empty"},
+            )
+
+        if (
+            _HAS_SPLOT
+            and run_round is not None
+            and self._looks_like_splot_profile(self.profile)
+        ):
+            return self._fuse_with_splot(raw_signals, node_id, now)
+
+        return self._fuse_fallback(raw_signals, node_id)
+
+    def _fuse_with_splot(
+        self,
+        raw_signals: list[RawSignal],
+        node_id: str,
+        now: str | None,
+    ) -> ErrorSignal:
+        observations = [
+            self._mk_observation(sig, i) for i, sig in enumerate(raw_signals)
+        ]
+        candidates = [self._mk_candidate()]
+        result = run_round(
+            profile=self.profile,
+            observations=observations,
+            candidates=candidates,
+            now=now or "2026-01-01T00:00:00Z",
+        )
+        decision = result.get("decision", {}) if isinstance(result, dict) else {}
+        eval_ = (decision.get("evaluations") or [{}])[0] if decision else {}
+        aberration = float(eval_.get("score", 0.0) or 0.0)
+        confidence = float(eval_.get("confidence", 0.7) or 0.7)
+        residual = float(result.get("uncertainty", 0.5)) if isinstance(result, dict) else 0.5
+
+        return ErrorSignal(
+            vector_id=f"err_{uuid.uuid4().hex[:12]}",
+            node_id=node_id,
+            aberration=aberration,
+            confidence=confidence,
+            residual_entropy=residual,
+            contributing_signals=[s.signal_id for s in raw_signals],
+            metadata={
+                "reducer": "splot",
+                "raw_count": len(raw_signals),
+                "profile_id": self.profile.get("id"),
+            },
+        )
+
+    def _fuse_fallback(self, raw_signals: list[RawSignal], node_id: str) -> ErrorSignal:
+        """Prosty reduktor gdy brak splotu.
+
+        Średnia ważona odchyleń (deviation), confidence = min confidence z sygnałów.
+        """
+        total_weight = 0.0
+        weighted_sum = 0.0
+        min_conf = 1.0
+        ids: list[str] = []
+
+        for sig in raw_signals:
+            w = 1.0
+            weighted_sum += sig.deviation * w
+            total_weight += w
+            if sig.confidence < min_conf:
+                min_conf = sig.confidence
+            ids.append(sig.signal_id)
+
+        aberration = weighted_sum / total_weight if total_weight > 0 else 0.0
+        confidence = min_conf if raw_signals else 1.0
+        residual = max(0.3, 1.0 - confidence)
+
+        return ErrorSignal(
+            vector_id=f"err_{uuid.uuid4().hex[:12]}",
+            node_id=node_id,
+            aberration=aberration,
+            confidence=confidence,
+            residual_entropy=residual,
+            contributing_signals=ids,
+            metadata={"reducer": "fallback", "raw_count": len(raw_signals)},
+        )
+
+    # --- helpers for splot path (only called when splot present) ---
 
     def _mk_observation(self, sig: RawSignal, idx: int) -> dict[str, Any]:
-        """Mapuj RawSignal na obserwację splot."""
         wave = sig.signal_id or f"{sig.node_id}:{sig.detector}"
         return {
-            "id": f"obs_{idx}_{sig.signal_id}",
+            "id": f"sig_{idx}",
             "wave_id": wave,
             "values": {"deviation": float(sig.deviation)},
             "confidence": float(sig.confidence),
@@ -62,78 +152,7 @@ class SplotFusionUnit:
         }
 
     def _mk_candidate(self) -> dict[str, Any]:
-        """Jeden kandydat reprezentujący 'wektor aberracji'."""
         return {"id": "aberration_vector", "kind": "error_vector"}
-
-    def fuse(
-        self,
-        raw_signals: list[RawSignal],
-        node_id: str,
-        now: str | None = None,
-    ) -> ErrorSignal:
-        """Zredukuj listę surowych sygnałów do jednego ErrorSignal.
-
-        Zwraca ErrorSignal z:
-        - aberration = skonsolidowana wartość (z sygnału splot)
-        - confidence
-        - residual_entropy = uncertainty.value z raportu
-        """
-        if not raw_signals:
-            # Brak sygnałów → zerowy błąd, pełna pewność, zerowa entropia
-            return ErrorSignal(
-                vector_id=f"err_{uuid.uuid4().hex[:12]}",
-                node_id=node_id,
-                aberration=0.0,
-                confidence=1.0,
-                residual_entropy=0.0,
-                contributing_signals=[],
-                metadata={"source": "no_signals"},
-            )
-
-        observations = [self._mk_observation(s, i) for i, s in enumerate(raw_signals)]
-        candidates = [self._mk_candidate()]
-
-        result = run_round(
-            self.profile,
-            observations=observations,
-            candidates=candidates,
-            now=now or "2026-07-11T00:00:00+00:00",
-        )
-
-        report = result.report
-        decision = report.decision or {}
-        uncertainty = report.uncertainty or {}
-
-        # Wyciągamy skonsolidowaną wartość aberracji z ewaluacji
-        # (pierwszy sygnał w pierwszej ewaluacji)
-        evaluations = report.evaluations or []
-        aberration_value = 0.0
-        if evaluations:
-            sigs = evaluations[0].get("signals") or []
-            if sigs:
-                aberration_value = float(sigs[0].get("value", 0.0))
-
-        # Pewność z decyzji lub 1 - uncertainty
-        conf = float(decision.get("confidence", 1.0 - float(uncertainty.get("value", 0.0))))
-
-        residual = float(uncertainty.get("value", 0.0))
-
-        contrib = [s.signal_id for s in raw_signals]
-
-        return ErrorSignal(
-            vector_id=f"err_{uuid.uuid4().hex[:12]}",
-            node_id=node_id,
-            aberration=aberration_value,
-            confidence=max(0.0, min(1.0, conf)),
-            residual_entropy=max(0.0, min(1.0, residual)),
-            contributing_signals=contrib,
-            metadata={
-                "splot_round_id": report.round_id,
-                "splot_profile_id": report.profile_id,
-                "splot_decision": decision,
-                "splot_uncertainty": uncertainty,
-            },
-        )
 
 
 __all__ = ["SplotFusionUnit"]

@@ -7,7 +7,7 @@ Transport: fala (pion/poziom). Redukcja entropii: splot.
 from __future__ import annotations
 
 from .fusion import SplotFusionUnit
-from .homeostat import EssentialVariable, Homeostat
+from .homeostat import EssentialVariable, ProfilHomeostatyczny
 from .plant import ControlledPlant, MathTreePlant, TreeNode
 from .regulator import CascadeRegulator
 from .sequencer import TaktResult, TaktSequencer
@@ -33,7 +33,7 @@ __all__ = [
     "Telemetry",
     "OutgoingSignals",
     "EssentialVariable",
-    "Homeostat",
+    "ProfilHomeostatyczny",
     "ControlledPlant",
     "MathTreePlant",
     "TreeNode",

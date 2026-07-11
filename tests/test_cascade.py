@@ -9,7 +9,7 @@ from takt import (
     CascadeRegulator,
     EssentialVariable,
     FalaWave,
-    Homeostat,
+    ProfilHomeostatyczny,
     MathTreePlant,
     SafetyInterlock,
     TaktSequencer,
@@ -33,7 +33,7 @@ def test_plant_sequential_scan_generates_tacts():
 
 
 def test_single_layer_no_actuation_within_tolerance():
-    homeo = Homeostat(layer=0)
+    homeo = ProfilHomeostatyczny(layer=0)
     homeo.add_variable(EssentialVariable("dev", tolerance=0.2, cutoff=0.01))
     reg = CascadeRegulator(layer=0, homeostat=homeo)
 
@@ -48,7 +48,7 @@ def test_single_layer_no_actuation_within_tolerance():
 
 
 def test_single_layer_actuation_outside_tolerance():
-    homeo = Homeostat(layer=0, min_confidence=0.5)
+    homeo = ProfilHomeostatyczny(layer=0, min_confidence=0.5)
     homeo.add_variable(EssentialVariable("dev", tolerance=0.1, cutoff=0.01))
     reg = CascadeRegulator(layer=0, homeostat=homeo)
 
@@ -65,7 +65,7 @@ def test_single_layer_actuation_outside_tolerance():
 
 def test_strict_fail_closed_on_high_entropy():
     """Gdy splot nie redukuje entropii poniżej progu — interlock, brak actuacji."""
-    homeo = Homeostat(layer=0, entropy_threshold=0.2, min_confidence=0.1)
+    homeo = ProfilHomeostatyczny(layer=0, entropy_threshold=0.2, min_confidence=0.1)
     reg = CascadeRegulator(layer=0, homeostat=homeo)
 
     class ContradictoryDetector:
@@ -89,9 +89,9 @@ def test_strict_fail_closed_on_high_entropy():
 
 def test_two_layer_cascade_propagates_constraints():
     """Fala zstępująca z L1 powinna wpłynąć na sygnały L0 (root-first)."""
-    h0 = Homeostat(0)
+    h0 = ProfilHomeostatyczny(0)
     h0.add_variable(EssentialVariable("dev", tolerance=10.0))
-    h1 = Homeostat(1)
+    h1 = ProfilHomeostatyczny(1)
     h1.add_variable(EssentialVariable("dev", tolerance=0.05))
 
     reg0 = CascadeRegulator(layer=0, homeostat=h0)
@@ -117,8 +117,8 @@ def test_two_layer_cascade_propagates_constraints():
 
 def test_build_cascade_helper():
     layers = [
-        (0, Homeostat(0)),
-        (1, Homeostat(1)),
+        (0, ProfilHomeostatyczny(0)),
+        (1, ProfilHomeostatyczny(1)),
     ]
     root = build_cascade(layers)
     assert root.layer == 1

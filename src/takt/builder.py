@@ -4,12 +4,12 @@ from __future__ import annotations
 from typing import Sequence
 
 from .fusion import SplotFusionUnit
-from .homeostat import Homeostat
+from .homeostat import ProfilHomeostatyczny
 from .regulator import CascadeRegulator
 
 
 def build_cascade(
-    layers: Sequence[tuple[int, Homeostat]],
+    layers: Sequence[tuple[int, ProfilHomeostatyczny]],
     *,
     fusion_factory: type[SplotFusionUnit] | None = None,
 ) -> CascadeRegulator:

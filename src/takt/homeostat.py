@@ -1,4 +1,4 @@
-"""Homeostat — profil homeostatyczny dla zmiennych krytycznych.
+"""ProfilHomeostatyczny — profil homeostatyczny dla zmiennych krytycznych.
 
 Definiuje granice stabilności na poziomie hierarchii.
 """
@@ -23,7 +23,7 @@ class EssentialVariable:
 
 
 @dataclass
-class Homeostat:
+class ProfilHomeostatyczny:
     """Zarządza zmiennymi krytycznymi dla danego poziomu kaskady.
 
     Użyty do:
@@ -73,4 +73,4 @@ class Homeostat:
         }
 
 
-__all__ = ["EssentialVariable", "Homeostat"]
+__all__ = ["EssentialVariable", "ProfilHomeostatyczny"]

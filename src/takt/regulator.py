@@ -2,7 +2,7 @@
 
 - evaluate(node, incoming_wave) -> OutgoingSignals
 - Używa SplotFusionUnit do redukcji
-- Respektuje Homeostat (strict fail-closed)
+- Respektuje ProfilHomeostatyczny (strict fail-closed, warstwa — nie mylić z runtime gate z Fala)
 - Propaguje fale zstępujące / wstępujące
 """
 from __future__ import annotations
@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .fusion import SplotFusionUnit
-from .homeostat import Homeostat
+from .homeostat import ProfilHomeostatyczny
 from .types import (
     Actuation,
     ErrorSignal,
@@ -34,7 +34,7 @@ class CascadeRegulator:
     """
 
     layer: int
-    homeostat: Homeostat
+    homeostat: ProfilHomeostatyczny
     fusion: SplotFusionUnit = field(default_factory=SplotFusionUnit)
     parent_loop: CascadeRegulator | None = None
     child_loop: CascadeRegulator | None = None
@@ -132,7 +132,7 @@ class CascadeRegulator:
 
         1. Zbierz surowe sygnały (z fali + detektorów + wartości węzła)
         2. Splot → ErrorSignal
-        3. Homeostat → decyzja: Actuation / Interlock / nic
+        3. ProfilHomeostatyczny → decyzja: Actuation / Interlock / nic
         4. Przygotuj falę wstępującą + ewentualną falę zstępującą dla dzieci
         """
         raw = self._collect_raw_signals(node, incoming_wave)
