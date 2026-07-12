@@ -1,6 +1,6 @@
 [project]
 name = "takt"
-version = "0.1.1"
+version = "0.1.2"
 description = "Generyczny mechanizm kaskadowego sterowania cybernetycznego (Hierarchical Orchestrator). Działa nad dowolnym drzewem stanu (dokumenty, kod źródłowy, dane chemiczne, grafy, agenci). Transport pionowy: fala. Redukcja entropii: splot. Zero wiedzy domenowej."
 authors = [
   { name = "mikolaj92", email = "mikolaj92@users.noreply.github.com" }
