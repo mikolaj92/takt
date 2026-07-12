@@ -30,8 +30,8 @@ build-backend = "hatchling.build"
 packages = ["src/takt"]
 
 [tool.uv.sources]
-fala-runtime = { path = "../Fala", editable = true }
-splot-runtime = { path = "../splot", editable = true }
+fala-runtime = { git = "https://github.com/mikolaj92/fala.git" }
+splot-runtime = { git = "https://github.com/mikolaj92/splot.git" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

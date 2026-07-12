@@ -130,19 +130,12 @@ wheels = [
 
 [[package]]
 name = "fala-runtime"
-version = "0.2.0"
-source = { editable = "../Fala" }
+version = "0.2.1"
+source = { git = "https://github.com/mikolaj92/fala.git#b5f8085f418010a9290613b86671d435551411a9" }
 dependencies = [
     { name = "jsonschema" },
     { name = "pydantic" },
     { name = "pyyaml" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "jsonschema", specifier = ">=4.23.0" },
-    { name = "pydantic", specifier = ">=2.7.0" },
-    { name = "pyyaml", specifier = ">=6.0.0" },
 ]
 
 [[package]]
@@ -571,15 +564,8 @@ wheels = [
 
 [[package]]
 name = "splot-runtime"
-version = "0.2.0"
-source = { editable = "../splot" }
-
-[package.metadata]
-provides-extras = ["fala"]
-
-[package.metadata.requires-dev]
-dev = [{ name = "pytest", specifier = ">=9.1.1" }]
-fala = [{ name = "fala", git = "https://github.com/mikolaj92/Fala.git?rev=0.1.0" }]
+version = "0.2.1"
+source = { git = "https://github.com/mikolaj92/splot.git#3861c73ac5ad1668d1c496df4058b6b0f43a64c8" }
 
 [[package]]
 name = "takt"
@@ -604,13 +590,13 @@ splot = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fala-runtime", editable = "../Fala" },
+    { name = "fala-runtime", git = "https://github.com/mikolaj92/fala.git" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.10" },
     { name = "pydantic", specifier = ">=2.13.4" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.1.1" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=5" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.5" },
-    { name = "splot-runtime", marker = "extra == 'splot'", editable = "../splot" },
+    { name = "splot-runtime", git = "https://github.com/mikolaj92/splot.git" },
     { name = "typing-extensions", specifier = ">=4" },
 ]
 provides-extras = ["splot", "dev"]
