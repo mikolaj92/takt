@@ -2,9 +2,10 @@
 
 - evaluate(node, incoming_wave) -> OutgoingSignals
 - Używa SplotFusionUnit do redukcji
-- Respektuje ProfilHomeostatyczny (strict fail-closed, warstwa — nie mylić z runtime gate z Fala)
+- Respektuje ProfilHomeostatyczny (strict fail-closed, warstwa)
 - Propaguje fale zstępujące / wstępujące
 """
+
 from __future__ import annotations
 
 import uuid
@@ -15,13 +16,12 @@ from .fusion import SplotFusionUnit
 from .homeostat import ProfilHomeostatyczny
 from .types import (
     Actuation,
-    ErrorSignal,
-    FalaWave,
     OutgoingSignals,
     RawSignal,
     SafetyInterlock,
     StateNode,
     Telemetry,
+    Wave,
 )
 
 
@@ -47,7 +47,7 @@ class CascadeRegulator:
         """Zarejestruj detektor lokalny (obiekt z metodą detect(node) -> list[RawSignal])."""
         self._local_detectors.append(detector)
 
-    def _collect_raw_signals(self, node: StateNode[Any], incoming: FalaWave | None) -> list[RawSignal]:
+    def _collect_raw_signals(self, node: StateNode[Any], incoming: Wave | None) -> list[RawSignal]:
         signals: list[RawSignal] = []
 
         # 1. Sygnały z fali zstępującej (z parent)
@@ -102,7 +102,7 @@ class CascadeRegulator:
 
         return signals
 
-    def _build_descending_wave(self, node: StateNode[Any], parent_wave: FalaWave | None) -> FalaWave:
+    def _build_descending_wave(self, node: StateNode[Any], parent_wave: Wave | None) -> Wave:
         """Buduje falę zstępującą dla dzieci na podstawie kontekstu + homeostatu."""
         constraints: dict[str, Any] = {}
         if parent_wave:
@@ -113,7 +113,7 @@ class CascadeRegulator:
             constraints.setdefault(f"homeostat.{vname}.tolerance", var.tolerance)
             constraints.setdefault(f"homeostat.{vname}.cutoff", var.cutoff)
 
-        return FalaWave(
+        return Wave(
             wave_id=f"wave_L{self.layer}_{uuid.uuid4().hex[:8]}",
             layer=self.layer,
             source_id=self.name or f"reg_L{self.layer}",
@@ -127,7 +127,7 @@ class CascadeRegulator:
             metadata={"homeostat": self.homeostat.to_dict()},
         )
 
-    def evaluate(self, node: StateNode[Any], incoming_wave: FalaWave | None = None) -> OutgoingSignals:
+    def evaluate(self, node: StateNode[Any], incoming_wave: Wave | None = None) -> OutgoingSignals:
         """Główna metoda taktu dla tego poziomu.
 
         1. Zbierz surowe sygnały (z fali + detektorów + wartości węzła)
@@ -171,7 +171,10 @@ class CascadeRegulator:
                     break
             # Jeśli nie ma zdefiniowanych zmiennych — akt na podstawie niezerowego błędu + pewności
             if not self.homeostat.variables:
-                should_act = abs(error.aberration) > 1e-9 and error.confidence >= self.homeostat.min_confidence
+                should_act = (
+                    abs(error.aberration) > 1e-9
+                    and error.confidence >= self.homeostat.min_confidence
+                )
 
             if should_act:
                 actuation = Actuation(
@@ -185,7 +188,7 @@ class CascadeRegulator:
             # W przeciwnym razie — stabilny stan, brak impulsu
 
         # Fala wstępująca (ascending) — zawsze, z wynikiem
-        ascending = FalaWave(
+        ascending = Wave(
             wave_id=f"asc_{uuid.uuid4().hex[:12]}",
             layer=self.layer,
             source_id=node.id,
@@ -194,11 +197,6 @@ class CascadeRegulator:
             context={"error_id": error.vector_id, "interlocked": interlock is not None},
             metadata={"residual_entropy": error.residual_entropy},
         )
-
-        # Fala zstępująca dla dzieci (jeśli są)
-        descending_for_child: FalaWave | None = None
-        if node.has_children():
-            descending_for_child = self._build_descending_wave(node, incoming_wave)
 
         tel.append(
             Telemetry(

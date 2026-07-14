@@ -1,22 +1,21 @@
-"""SplotFusionUnit — opcjonalny komponent fuzji i redukcji entropii.
+"""Opcjonalna fuzja sygnałów przez Splot z lokalnym fallbackiem.
 
-Domyślnie używa `splot` (jeśli zainstalowany).
-Jeśli splot nie jest dostępny, stosuje prosty fallback (średnia ważona odchyleń).
-Splot jest opcjonalny: takt zawsze wymaga fali jako podłoża transportu.
+Takt pozostaje niezależny od Fala. Zewnętrzny runtime Fala może być podłączony
+przez osobny adapter, ale nie jest wymagany przez ten pakiet.
 """
 
 from __future__ import annotations
 
+import importlib.util
 import uuid
 from typing import Any
 
 from .types import ErrorSignal, RawSignal
 
-_HAS_SPLOT = False
-try:
+_HAS_SPLOT = importlib.util.find_spec("splot") is not None
+if _HAS_SPLOT:
     from splot import run_round  # type: ignore[import-untyped]
-    _HAS_SPLOT = True
-except ImportError:
+else:
     run_round = None  # type: ignore[assignment]
 
 
@@ -29,10 +28,23 @@ class SplotFusionUnit:
 
     def __init__(self, profile: dict[str, Any] | None = None) -> None:
         self.profile: dict[str, Any] = profile or {
+            "version": 1,
             "id": "fallback_aberration",
-            "mode": "regulate",
-            "signals": [{"id": "aberration", "weight": 1.0, "prefer": "lower"}],
+            "mode": "select_one",
+            "objective": {"id": "aberration"},
+            "signals": [
+                {
+                    "id": "aberration",
+                    "provider": "observation.value",
+                    "field": "deviation",
+                    "weight": 1.0,
+                    "prefer": "lower",
+                    "reduce": "mean",
+                }
+            ],
+            "decision": {"policy": "constrained_weighted_score"},
         }
+
     def _looks_like_splot_profile(self, p: dict[str, Any]) -> bool:
         return isinstance(p, dict) and "version" in p
 
@@ -58,11 +70,7 @@ class SplotFusionUnit:
                 metadata={"reducer": "empty"},
             )
 
-        if (
-            _HAS_SPLOT
-            and run_round is not None
-            and self._looks_like_splot_profile(self.profile)
-        ):
+        if _HAS_SPLOT and run_round is not None and self._looks_like_splot_profile(self.profile):
             return self._fuse_with_splot(raw_signals, node_id, now)
 
         return self._fuse_fallback(raw_signals, node_id)
@@ -73,9 +81,7 @@ class SplotFusionUnit:
         node_id: str,
         now: str | None,
     ) -> ErrorSignal:
-        observations = [
-            self._mk_observation(sig, i) for i, sig in enumerate(raw_signals)
-        ]
+        observations = [self._mk_observation(sig, i) for i, sig in enumerate(raw_signals)]
         candidates = [self._mk_candidate()]
         result = run_round(
             profile=self.profile,
@@ -83,11 +89,12 @@ class SplotFusionUnit:
             candidates=candidates,
             now=now or "2026-01-01T00:00:00Z",
         )
-        decision = result.get("decision", {}) if isinstance(result, dict) else {}
-        eval_ = (decision.get("evaluations") or [{}])[0] if decision else {}
-        aberration = float(eval_.get("score", 0.0) or 0.0)
-        confidence = float(eval_.get("confidence", 0.7) or 0.7)
-        residual = float(result.get("uncertainty", 0.5)) if isinstance(result, dict) else 0.5
+        report = result.report
+        evaluation = report.evaluations[0]
+        signal = evaluation["signals"][0]
+        aberration = float(signal["value"])
+        confidence = float(signal["confidence"])
+        residual = 1.0 - confidence
 
         return ErrorSignal(
             vector_id=f"err_{uuid.uuid4().hex[:12]}",

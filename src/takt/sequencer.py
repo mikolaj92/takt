@@ -3,15 +3,16 @@
 Jeden takt = przesunięcie okna próbkowania na kolejny węzeł.
 Napędza kaskadę regulatorów L0..Ln-1.
 """
+
 from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, Iterator
+from typing import Any
 
 from .plant import ControlledPlant
 from .regulator import CascadeRegulator
-from .types import FalaWave, OutgoingSignals, StateNode
+from .types import Wave, OutgoingSignals, StateNode
 
 
 @dataclass
@@ -21,7 +22,7 @@ class TaktResult:
     tact: int
     node: StateNode[Any]
     signals: OutgoingSignals
-    descending_wave: FalaWave | None = None
+    descending_wave: Wave | None = None
 
 
 @dataclass
@@ -51,7 +52,7 @@ class TaktSequencer:
         self._tact = 0
         self._last_results.clear()
 
-    def run_one_tact(self, incoming_top_wave: FalaWave | None = None) -> TaktResult:
+    def run_one_tact(self, incoming_top_wave: Wave | None = None) -> TaktResult:
         """Wykonaj jeden takt: weź następny węzeł, przepuść przez kaskadę."""
         nodes = list(self.plant.sequential_scan())
         if not nodes:
@@ -72,7 +73,7 @@ class TaktSequencer:
         self,
         node: StateNode[Any],
         regulator: CascadeRegulator,
-        incoming: FalaWave | None,
+        incoming: Wave | None,
     ) -> TaktResult:
         """Rekurencyjna ewaluacja kaskady dla węzła.
 
@@ -82,10 +83,9 @@ class TaktSequencer:
         out = regulator.evaluate(node, incoming)
 
         # Jeśli ten regulator ma dziecko i węzeł ma dzieci — przekaż falę w dół
-        descending = out.ascending_wave  # domyślnie ascending staje się kontekstem dla niżej
+        descending = out.ascending_wave  # ascending staje się kontekstem dla niżej
         if regulator.child_loop is not None and node.has_children():
-            # Budujemy falę zstępującą z kontekstu tego poziomu
-            child_wave = FalaWave(
+            child_wave = Wave(
                 wave_id=f"desc_{uuid.uuid4().hex[:12]}",
                 layer=regulator.child_loop.layer,
                 source_id=regulator.name or f"reg_L{regulator.layer}",
@@ -94,100 +94,21 @@ class TaktSequencer:
                 context={"from_layer": regulator.layer, "node": node.id},
                 metadata={"propagated": True},
             )
-            # Ewaluacja dziecka (na tym samym węźle — dziecko regulatora dostaje ten sam node,
-            # ale jego dzieci dostaną falę przy niższych poziomach)
             child_out = regulator.child_loop.evaluate(node, child_wave)
-            # Zbuduj scalony wynik (OutgoingSignals jest frozen)
-            # Zbuduj scalony wynik (OutgoingSignals jest frozen)
-            merged_tele = list(out.telemetry) + list(child_out.telemetry)
-            # Zbuduj scalony wynik (OutgoingSignals jest frozen)
-            merged_tele = list(out.telemetry) + list(child_out.telemetry)
-            merged_il = child_out.interlock or out.interlock
-            # Zbuduj scalony wynik (OutgoingSignals jest frozen)
-            merged_tele = list(out.telemetry) + list(child_out.telemetry)
-            merged_il = child_out.interlock or out.interlock
-            merged_act = None
-            if not merged_il:
-                merged_act = child_out.actuation or out.actuation
-            merged_wave = child_out.ascending_wave or out.ascending_wave
-            out = OutgoingSignals(
-                error=out.error,
-                actuation=merged_act,
-                interlock=merged_il,
-                telemetry=merged_tele,
-                ascending_wave=merged_wave,
-            )
-            # Zbuduj scalony wynik (OutgoingSignals jest frozen)
-            merged_tele = list(out.telemetry) + list(child_out.telemetry)
-            merged_il = child_out.interlock or out.interlock
-            merged_act = None
-            if not merged_il:
-                merged_act = child_out.actuation or out.actuation
-            merged_wave = child_out.ascending_wave or out.ascending_wave
-            out = OutgoingSignals(
-                error=out.error,
-                actuation=merged_act,
-                interlock=merged_il,
-                telemetry=merged_tele,
-                ascending_wave=merged_wave,
-            )
-            # Zbuduj scalony wynik (OutgoingSignals jest frozen)
-            merged_tele = list(out.telemetry) + list(child_out.telemetry)
-            merged_il = child_out.interlock or out.interlock
-            merged_act = None
-            if not merged_il:
-                merged_act = child_out.actuation or out.actuation
-            merged_wave = child_out.ascending_wave or out.ascending_wave
-            out = OutgoingSignals(
-                error=out.error,
-                actuation=merged_act,
-                interlock=merged_il,
-                telemetry=merged_tele,
-                ascending_wave=merged_wave,
-            )
-            # Zbuduj scalony wynik (OutgoingSignals jest frozen)
-            merged_tele = list(out.telemetry) + list(child_out.telemetry)
-            merged_il = child_out.interlock or out.interlock
-            merged_act = None
-            if not merged_il:
-                merged_act = child_out.actuation or out.actuation
-            merged_wave = child_out.ascending_wave or out.ascending_wave
-            out = OutgoingSignals(
-                error=out.error,
-                actuation=merged_act,
-                interlock=merged_il,
-                telemetry=merged_tele,
-                ascending_wave=merged_wave,
-            )
-            # Zbuduj scalony wynik (OutgoingSignals jest frozen)
-            merged_tele = list(out.telemetry) + list(child_out.telemetry)
-            merged_il = child_out.interlock or out.interlock
-            merged_act = None
-            if not merged_il:
-                merged_act = child_out.actuation or out.actuation
-            merged_wave = child_out.ascending_wave or out.ascending_wave
-            out = OutgoingSignals(
-                error=out.error,
-                actuation=merged_act,
-                interlock=merged_il,
-                telemetry=merged_tele,
-                ascending_wave=merged_wave,
-            )
-            # Zbuduj scalony wynik (OutgoingSignals jest frozen)
-            merged_tele = list(out.telemetry) + list(child_out.telemetry)
-            merged_il = child_out.interlock or out.interlock
-            merged_act = None
-            if not merged_il:
-                merged_act = child_out.actuation or out.actuation
-            merged_wave = child_out.ascending_wave or out.ascending_wave
-            out = OutgoingSignals(
-                error=out.error,
-                actuation=merged_act,
-                interlock=merged_il,
-                telemetry=merged_tele,
-                ascending_wave=merged_wave,
-            )
 
+            merged_telemetry = list(out.telemetry) + list(child_out.telemetry)
+            merged_interlock = child_out.interlock or out.interlock
+            merged_actuation = None
+            if not merged_interlock:
+                merged_actuation = child_out.actuation or out.actuation
+            merged_wave = child_out.ascending_wave or out.ascending_wave
+            out = OutgoingSignals(
+                error=out.error,
+                actuation=merged_actuation,
+                interlock=merged_interlock,
+                telemetry=merged_telemetry,
+                ascending_wave=merged_wave,
+            )
 
         return TaktResult(
             tact=self._tact,
@@ -196,7 +117,7 @@ class TaktSequencer:
             descending_wave=descending,
         )
 
-    def run(self, steps: int, initial_wave: FalaWave | None = None) -> list[TaktResult]:
+    def run(self, steps: int, initial_wave: Wave | None = None) -> list[TaktResult]:
         """Uruchom N taktów."""
         results: list[TaktResult] = []
         wave = initial_wave

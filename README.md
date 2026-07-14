@@ -13,7 +13,7 @@ Działa identycznie nad:
 Nie jest parserem formatów plików ani silnikiem kolejkowym.  
 Jest nakładką sterowania kaskadowego, która dostarcza **pionowy przepływ sygnałów** i redukcję entropii nad dowolnym drzewem kontrolowanym.
 
-- Transport pionowy i poziomy: **fala** (zawsze wymagana jako podłoże transportu).
+- Lokalny transport pionowy i poziomy: `Wave` (bez zależności od zewnętrznego runtime'u).
 - Unifikacja i redukcja entropii: **splot** (opcjonalny — domyślny reduktor w SplotFusionUnit; można podmieniać lub pomijać).
 - Zero wiedzy domenowej — czysty mechanizm cybernetyczny.
 
@@ -21,7 +21,7 @@ Jest nakładką sterowania kaskadowego, która dostarcza **pionowy przepływ syg
 
 ```
 L3  Globalne repozytorium / architektura
-    ↓ fala zstępująca: "tylko asynchroniczny dostęp do bazy"
+    ↓ `Wave` zstępująca: "tylko asynchroniczny dostęp do bazy"
 L2  Pull Request jako całość (kontekst biznesowy)
 L1  Plik / moduł
 L0  Linijka / diff hunk   ← takt przesuwa okno próbkowania takt po takcie
@@ -37,7 +37,7 @@ Dokładnie ten sam mechanizm działa dla dokumentów, SDS, grafów zależności 
 
 ## Architektura (jeden takt)
 
-1. Próbkowanie stanu (`fala`)
+1. Próbkowanie stanu przez `ControlledPlant`
 2. Generowanie surowych sygnałów (detektory + efektory)
 3. Fuzja i redukcja przez `splot` → czysty **Wektor Aberracji (ErrorSignal)**
 4. Reakcja:
@@ -57,7 +57,7 @@ To może być dowolna hierarchia:
 - graf zależności
 - stan dowolnego systemu
 
-Wszystkie zewnętrzne "Kity" robią to samo: implementują `ControlledPlant` dla swojego kształtu drzewa i tłumaczą węzły na akcje w świecie zewnętrznym (fala, GitHub, pliki, API...).
+Wszystkie zewnętrzne "Kity" implementują `ControlledPlant` dla swojego kształtu drzewa i tłumaczą węzły na akcje w świecie zewnętrznym (np. Fala, GitHub, pliki, API). Fala jest opcjonalnym adapterem/runtime'em, nie zależnością core Taktu.
 
 Sam takt pozostaje całkowicie odcięty od domeny.
 
@@ -67,11 +67,11 @@ Sam takt pozostaje całkowicie odcięty od domeny.
 |--------------------------|------|
 | `StateNode`              | Abstrakcyjny węzeł drzewa stanu (relacje rodzic-dziecko) |
 | `ControlledPlant`        | Środowisko z `sequential_scan()` (generuje takt zegara) |
-| `ProfilHomeostatyczny`   | Profil stabilności warstwy: zmienne krytyczne, progi, cutoff, entropy_threshold (NIE mylić z runtime gate z Fala) |
+| `ProfilHomeostatyczny`   | Profil stabilności warstwy: zmienne krytyczne, progi, cutoff, entropy_threshold |
 | `SplotFusionUnit`        | Redukcja sygnałów przez `splot` |
 | `CascadeRegulator`       | Pojedyncza pętla sterowania (L0 … Ln-1), `evaluate()`, parent/child |
 | `TaktSequencer`          | Dyskretny zegar — jeden węzeł = jeden takt |
-| `FalaWave` / `ErrorSignal` / `Actuation` / `SafetyInterlock` | Struktury sygnałowe |
+| `Wave` / `ErrorSignal` / `Actuation` / `SafetyInterlock` | Lokalne struktury sygnałowe Taktu |
 
 ## Instalacja (dla deweloperów)
 
@@ -80,7 +80,6 @@ uv sync --dev
 uv run pytest
 ```
 
-- `fala-runtime` (editable, wymagane)
 - `splot-runtime` (editable, opcjonalne — `pip install -e .[splot]` lub uv z grupy extra)
 ## Użycie (przykład z czystym drzewem matematycznym)
 
@@ -118,26 +117,26 @@ uv run pytest -q
 
 - **Strict fail-closed** — jeśli `splot` nie jest w stanie zredukować entropii poniżej progu zdefiniowanego w `ProfilHomeostatycznym`, system nie ma prawa wykonać impulsu wykonawczego.
 - **Pełna generyczność** — takt działa nad dowolnym drzewem stanu. Kod źródłowy, dokument tekstowy, dane chemiczne, graf zależności, stan agenta — to tylko różne implementacje `ControlledPlant`.
-- **Kaskada, nie płaska pętla** — fala + takt dostarczają pionowego przepływu ograniczeń (fala zstępująca) i telemetrii (fala wstępująca) między warstwami. Fala sama w sobie jest płaska (poziome conduction). Takt nakłada na nią strukturę n-warstw.
+- **Kaskada, nie płaska pętla** — lokalne `Wave` + takt dostarczają pionowego przepływu ograniczeń i telemetrii między warstwami. Zewnętrzna Fala może być adapterem transportowym, ale nie jest wymagana.
 - Modularność i testowalność.
 - Nazewnictwo zgodne z polską terminologią cybernetyczną (Marian Mazur i następcy).
 
 ## Rola Taktu w ekosystemie
 
-- `fala` = niezawodny, płaski runtime impulsów, procesów i poziomego conduction (takt zawsze na nim stoi).
+- `Wave` = lokalna struktura sygnału między regulatorami; Fala = opcjonalny zewnętrzny runtime/adapter transportowy.
 - `splot` = uniwersalny filtr decyzyjny (redukcja entropii) — domyślna implementacja w SplotFusionUnit; można zastąpić własną strategią oceny.
 - `takt` = generyczny manager kaskady, który:
   - przyjmuje dowolne drzewo (`StateNode` + `ControlledPlant`),
   - zarządza n warstwami regulatorów z `ProfilHomeostatycznym`,
-  - wstrzykuje kontekst (w tym zewnętrzny cel/referencję) przez fale zstępujące,
+  - wstrzykuje kontekst (w tym zewnętrzny cel/referencję) przez lokalne `Wave`,
   - używa reduktora entropii (domyślnie splot) przed każdym taktem,
   - dąży do homeostazy warstwy i całej kaskady.
 ReviewKit, SDSKit, PRKit itp. to tylko zewnętrzne adaptery, które uczą takt "rozmawiać" z konkretnym kształtem drzewa. Core `takt` pozostaje uniwersalny.
 
 ## Zależności
 
-- [fala](https://github.com/mikolaj92/Fala) — płaski, niezawodny runtime impulsów i poziome conduction
-- [splot](https://github.com/mikolaj92/splot) — uniwersalny filtr decyzyjny
+- [fala](https://github.com/mikolaj92/Fala) — opcjonalny zewnętrzny runtime/adapter; nie jest zależnością Taktu
+- [splot](https://github.com/mikolaj92/splot) — opcjonalny reduktor sygnałów
 
 ## Licencja
 

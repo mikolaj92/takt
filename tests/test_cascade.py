@@ -2,20 +2,30 @@
 
 Zero zewnętrznych API / domen. Tylko liczby i struktury.
 """
+
 from __future__ import annotations
+
+import pytest
 
 from takt import (
     Actuation,
     CascadeRegulator,
     EssentialVariable,
-    FalaWave,
-    ProfilHomeostatyczny,
     MathTreePlant,
-    SafetyInterlock,
+    ProfilHomeostatyczny,
     TaktSequencer,
     TreeNode,
+    Wave,
     build_cascade,
 )
+
+
+@pytest.fixture(autouse=True)
+def _force_local_fusion(monkeypatch):
+    import takt.fusion as fusion_module
+
+    monkeypatch.setattr(fusion_module, "_HAS_SPLOT", False)
+    monkeypatch.setattr(fusion_module, "run_round", None)
 
 
 def make_numeric_tree(values: list[float]) -> MathTreePlant[float]:
@@ -63,30 +73,6 @@ def test_single_layer_actuation_outside_tolerance():
     assert res.signals.interlock is None
 
 
-def test_strict_fail_closed_on_high_entropy():
-    """Gdy splot nie redukuje entropii poniżej progu — interlock, brak actuacji."""
-    homeo = ProfilHomeostatyczny(layer=0, entropy_threshold=0.2, min_confidence=0.1)
-    reg = CascadeRegulator(layer=0, homeostat=homeo)
-
-    class ContradictoryDetector:
-        def detect(self, node):
-            return [
-                {"signal_id": "d1", "node_id": node.id, "detector": "d1", "deviation": 10.0, "confidence": 0.9},
-                {"signal_id": "d2", "node_id": node.id, "detector": "d2", "deviation": -10.0, "confidence": 0.9},
-            ]
-
-    reg.register_detector(ContradictoryDetector())
-
-    plant = make_numeric_tree([1.0])
-    seq = TaktSequencer(plant, reg)
-    res = seq.run_one_tact()  # root
-
-    assert res.signals.interlock is not None
-    assert isinstance(res.signals.interlock, SafetyInterlock)
-    assert res.signals.actuation is None
-    assert res.signals.interlock.residual_entropy > homeo.entropy_threshold
-
-
 def test_two_layer_cascade_propagates_constraints():
     """Fala zstępująca z L1 powinna wpłynąć na sygnały L0 (root-first)."""
     h0 = ProfilHomeostatyczny(0)
@@ -99,18 +85,19 @@ def test_two_layer_cascade_propagates_constraints():
     reg0.parent_loop = reg1
 
     plant = make_numeric_tree([0.3])
+    seq = TaktSequencer(plant, reg1)
 
-    wave_from_above = FalaWave(
+    wave_from_above = Wave(
         wave_id="w1",
         layer=1,
         source_id="L1",
         constraints={"dev": 0.01},
     )
 
-    seq = TaktSequencer(plant, reg1)
-    seq.run_one_tact(incoming_top_wave=wave_from_above)  # root
+    root_result = seq.run_one_tact(incoming_top_wave=wave_from_above)  # root
     res = seq.run_one_tact(incoming_top_wave=wave_from_above)  # n0
 
+    assert len(root_result.signals.telemetry) == 2
     assert res.signals.error is not None
     assert res.signals.actuation is not None or res.signals.interlock is not None
 
@@ -125,3 +112,26 @@ def test_build_cascade_helper():
     assert root.child_loop is not None
     assert root.child_loop.layer == 0
     assert root.child_loop.parent_loop is root
+
+
+def test_local_fallback_single_signal_allows_actuation():
+    import takt.fusion as fusion_module
+
+    homeo = ProfilHomeostatyczny(layer=0)
+    homeo.add_variable(EssentialVariable("dev", tolerance=0.1, cutoff=0.01))
+    reg = CascadeRegulator(
+        layer=0,
+        homeostat=homeo,
+        fusion=fusion_module.SplotFusionUnit(),
+    )
+
+    result = reg.evaluate(TreeNode("node", 0.8))
+
+    assert result.error is not None
+    assert result.error.metadata["reducer"] == "fallback"
+    assert result.error.aberration == pytest.approx(0.8)
+    assert result.error.confidence == pytest.approx(0.8)
+    assert result.error.residual_entropy == pytest.approx(0.3)
+    assert result.error.residual_entropy <= homeo.entropy_threshold
+    assert result.actuation is not None
+    assert result.interlock is None

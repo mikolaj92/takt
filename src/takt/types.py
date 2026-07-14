@@ -1,13 +1,13 @@
 """Core abstract types for takt.
 
-StateNode: abstract tree node for hierarchical state.
-Fala-transported signal structures (descending/ascending waves, error signals,
-actuations, interlocks, telemetry). No domain knowledge.
+StateNode and local signal structures for hierarchical state regulation.
+No dependency on an external transport runtime.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Generic, Iterator, Protocol, Sequence, TypeVar
+from typing import Any, Generic, Protocol, Sequence, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -43,17 +43,14 @@ class StateNode(Protocol, Generic[T]):
 
 
 # ----------------------------------------------------------------------------
-# Fala signal structures (vertical/horizontal transport)
+# Local wave signal structures (vertical/horizontal transport)
 # ----------------------------------------------------------------------------
 
-class FalaWave(BaseModel):
-    """Fala zstępująca / wstępująca.
 
-    Przenosi kontekst, ograniczenia lub telemetrię między warstwami regulatorów.
-    Używana jako nośnik informacji w kanałach fala (zstępująca: constraints/context,
-    wstępująca: telemetry/diagnostics).
+class Wave(BaseModel):
+    """Descending or ascending signal for a local cascade.
 
-    Zgodna z duchem fala: impulsy informacji przepływające przez kaskadę.
+    Carries context, constraints, or telemetry between regulator layers.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -154,12 +151,13 @@ class Telemetry(BaseModel):
     layer: int
     kind: str  # e.g. "interlock", "decision", "state_change"
     payload: dict[str, Any] = Field(default_factory=dict)
-    wave: FalaWave | None = None
+    wave: Wave | None = None
 
 
 # ----------------------------------------------------------------------------
 # Outgoing signals bundle from a regulator evaluation
 # ----------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class OutgoingSignals:
@@ -173,7 +171,7 @@ class OutgoingSignals:
     actuation: Actuation | None = None
     interlock: SafetyInterlock | None = None
     telemetry: list[Telemetry] = field(default_factory=list)
-    ascending_wave: FalaWave | None = None
+    ascending_wave: Wave | None = None
 
     def has_actuation(self) -> bool:
         return self.actuation is not None and self.interlock is None
@@ -184,7 +182,7 @@ class OutgoingSignals:
 
 __all__ = [
     "StateNode",
-    "FalaWave",
+    "Wave",
     "RawSignal",
     "ErrorSignal",
     "Actuation",

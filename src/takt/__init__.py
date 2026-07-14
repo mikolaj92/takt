@@ -1,9 +1,9 @@
 """takt: generyczny silnik kaskadowego przetwarzania hierarchicznego.
 
-Transport: fala (pion/poziom). Redukcja entropii: splot.
-
-Ścisłe nazewnictwo cybernetyczne.
+Pakiet używa lokalnych struktur `Wave`; Fala jest opcjonalnym zewnętrznym
+adapterem/runtime'em, a Splot opcjonalnym reduktorem sygnałów.
 """
+
 from __future__ import annotations
 
 from .fusion import SplotFusionUnit
@@ -15,7 +15,7 @@ from .builder import build_cascade
 from .types import (
     Actuation,
     ErrorSignal,
-    FalaWave,
+    Wave,
     OutgoingSignals,
     RawSignal,
     SafetyInterlock,
@@ -25,7 +25,7 @@ from .types import (
 
 __all__ = [
     "StateNode",
-    "FalaWave",
+    "Wave",
     "RawSignal",
     "ErrorSignal",
     "Actuation",

@@ -1,14 +1,13 @@
 [project]
 name = "takt"
 version = "0.1.2"
-description = "Generyczny mechanizm kaskadowego sterowania cybernetycznego (Hierarchical Orchestrator). Działa nad dowolnym drzewem stanu (dokumenty, kod źródłowy, dane chemiczne, grafy, agenci). Transport pionowy: fala. Redukcja entropii: splot. Zero wiedzy domenowej."
+description = "Generyczny mechanizm kaskadowego sterowania cybernetycznego (Hierarchical Orchestrator) nad dowolnym drzewem stanu. Lokalne fale: Wave. Opcjonalna redukcja entropii: splot. Zero wiedzy domenowej."
 authors = [
   { name = "mikolaj92", email = "mikolaj92@users.noreply.github.com" }
 ]
 requires-python = ">=3.13"
 license = "MIT"
 dependencies = [
-  "fala-runtime",
   "pydantic>=2.13.4",
   "typing-extensions>=4",
 ]
@@ -30,7 +29,6 @@ build-backend = "hatchling.build"
 packages = ["src/takt"]
 
 [tool.uv.sources]
-fala-runtime = { git = "https://github.com/mikolaj92/fala.git" }
 splot-runtime = { git = "https://github.com/mikolaj92/splot.git" }
 
 [tool.pytest.ini_options]
