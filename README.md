@@ -51,6 +51,43 @@ docs/          conceptual model + Fala boundary
 tools/         mojo_run.sh, takt_step.sh
 ```
 
+## Get Mojo-only Takt (0.2.0)
+
+The product is the **git tree** (or GitHub source archive of the tag). There is
+no Python runtime to `pip install`.
+
+```bash
+# Recommended: pin a release tag
+git clone --branch v0.2.0 --depth 1 https://github.com/mikolaj92/takt.git
+cd takt
+
+# Or download the source archive
+curl -fsSL -o takt-0.2.0.tar.gz \
+  https://github.com/mikolaj92/takt/archive/refs/tags/v0.2.0.tar.gz
+tar -xzf takt-0.2.0.tar.gz && cd takt-0.2.0
+```
+
+**Use as a Mojo import path** (from any host project):
+
+```bash
+mojo run -I /path/to/takt/mojo your_program.mojo
+# inside Mojo:
+#   from takt.sequencer import TaktSequencer
+#   from takt.adapters_fala import cascade_step
+```
+
+**Run the Fala-compatible step** (no install beyond Mojo toolchain):
+
+```bash
+export TAKT_REQUEST_PATH=examples/fixtures/cascade_evaluate.request.json
+./tools/takt_step.sh
+```
+
+Requires a Mojo toolchain (`pixi` env from this repo, or sibling Fala/Splot
+`.pixi` — `tools/mojo_run.sh` / `tools/takt_step.sh` locate it).
+
+Release notes & archives: https://github.com/mikolaj92/takt/releases/tag/v0.2.0
+
 ## Quick proof
 
 Requires Mojo (Pixi or sibling Fala/Splot `.pixi` env via `tools/mojo_run.sh`):

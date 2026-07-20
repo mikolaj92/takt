@@ -10,6 +10,7 @@ wheels/
 .ruff_cache/
 .python-version
 uv.lock
+*.tar.gz
 
 # Mojo / pixi
 .pixi/

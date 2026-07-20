@@ -1,7 +1,7 @@
 [project]
 name = "takt"
 version = "0.2.0"
-description = "Generic hierarchical cascade control engine (Mojo): plant scan → fusion → homeostat → actuation/interlock. Optional Fala subprocess step."
+description = "Generic hierarchical cascade control engine (Mojo): plant scan → fusion → homeostat → actuation/interlock. Optional Fala subprocess step. Product lives under mojo/takt — not a Python runtime."
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
@@ -11,8 +11,8 @@ keywords = ["cascade", "homeostat", "cybernetics", "mojo", "regulation"]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
-  "Programming Language :: Mojo",
-  "Typing :: Typed",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Software Development :: Libraries",
 ]
 
 [project.urls]
@@ -20,14 +20,29 @@ Homepage = "https://github.com/mikolaj92/takt"
 Repository = "https://github.com/mikolaj92/takt"
 Issues = "https://github.com/mikolaj92/takt/issues"
 Changelog = "https://github.com/mikolaj92/takt/blob/main/CHANGELOG.md"
+Download = "https://github.com/mikolaj92/takt/releases/tag/v0.2.0"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 # Metadata-only Python package; product modules live under mojo/takt.
+# Obtain the Mojo tree via git tag / GitHub source archive — not pip.
 [tool.hatch.build.targets.wheel]
-only-include = ["README.md"]
+only-include = ["README.md", "LICENSE", "CHANGELOG.md"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "README.md",
+  "LICENSE",
+  "CHANGELOG.md",
+  "pixi.toml",
+  "pyproject.toml",
+  "mojo",
+  "tools",
+  "examples",
+  "docs",
+]
 
 [dependency-groups]
 mojo = [
@@ -38,3 +53,10 @@ mojo = [
 name = "modular-nightly"
 url = "https://whl.modular.com/nightly/simple/"
 explicit = true
+
+[tool.uv.sources]
+mojo = { index = "modular-nightly" }
+
+[tool.uv]
+index-strategy = "unsafe-best-match"
+prerelease = "allow"
