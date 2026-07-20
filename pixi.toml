@@ -1,0 +1,16 @@
+[workspace]
+name = "takt"
+version = "0.1.0"
+channels = ["https://conda.modular.com/max-nightly", "conda-forge"]
+platforms = ["osx-arm64"]
+
+[dependencies]
+mojo = "==1.0.0b3.dev2026071505"
+
+[tasks]
+plant-scan = "./tools/mojo_run.sh mojo/smoke/plant_scan.mojo"
+fusion-fallback = "./tools/mojo_run.sh mojo/smoke/fusion_fallback.mojo"
+regulator-evaluate = "./tools/mojo_run.sh mojo/smoke/regulator_evaluate.mojo"
+cascade-sequencer = "./tools/mojo_run.sh mojo/smoke/cascade_sequencer.mojo"
+full-smoke = "./tools/mojo_run.sh mojo/smoke/full_smoke.mojo"
+core-smoke = "pixi run plant-scan && pixi run fusion-fallback && pixi run regulator-evaluate && pixi run cascade-sequencer && pixi run full-smoke"

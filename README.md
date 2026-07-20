@@ -81,6 +81,23 @@ uv run pytest
 ```
 
 - `splot-runtime` (editable, opcjonalne — `pip install -e .[splot]` lub uv z grupy extra)
+
+## Mojo (native cascade core)
+
+Pełny rdzeń kaskady jest też w **Mojo** (`mojo/takt/`) — bez Pythona w runtime. Lokalny fusion fallback jest zawsze włączony; Splot/Fala pozostają opcjonalne poza core.
+
+```bash
+# wymaga Mojo (pixi lub sibling Fala/Splot .pixi env)
+./tools/mojo_run.sh mojo/smoke/full_smoke.mojo
+# lub poszczególne bramki:
+./tools/mojo_run.sh mojo/smoke/plant_scan.mojo
+./tools/mojo_run.sh mojo/smoke/fusion_fallback.mojo
+./tools/mojo_run.sh mojo/smoke/regulator_evaluate.mojo
+./tools/mojo_run.sh mojo/smoke/cascade_sequencer.mojo
+```
+
+Sukces: `takt cascade smoke ok` / `takt full smoke ok` (oraz tokeny `… smoke ok` z pozostałych smokes).
+
 ## Użycie (przykład z czystym drzewem matematycznym)
 
 Poniższy przykład używa wyłącznie liczb, żeby pokazać, że takt nie zawiera żadnej wiedzy domenowej. W rzeczywistym zastosowaniu przekazujesz własne drzewo stanu — strukturę kodu, dokument, dane SDS, graf zależności, stan agenta, cokolwiek.
