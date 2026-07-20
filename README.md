@@ -1,160 +1,121 @@
 # takt
 
-**Generyczny mechanizm kaskadowego sterowania cybernetycznego (Hierarchical Orchestrator).**
+**Version 0.2.0** — exclusive Mojo hierarchical cascade engine.
 
-`takt` to abstrakcyjny, w 100% generyczny silnik do sekwencyjnego stabilizowania i regulacji **dowolnych** n-warstwowych (n ≥ 2) hierarchicznych struktur stanu.
+**Takt is a fully Mojo library.** There is no Python runtime product tree.
 
-Działa identycznie nad:
-- drzewem zdań i akapitów dokumentu tekstowego,
-- drzewem plików, modułów i linijek kodu źródłowego (np. Pull Request na GitHubie),
-- drzewem wierszy, tabel i sekcji karty charakterystyki chemicznej (SDS),
-- dowolnym innym drzewem stanów (graf zależności, stan agenta, konfiguracja systemu, cokolwiek).
+## One job
 
-Nie jest parserem formatów plików ani silnikiem kolejkowym.  
-Jest nakładką sterowania kaskadowego, która dostarcza **pionowy przepływ sygnałów** i redukcję entropii nad dowolnym drzewem kontrolowanym.
+> **Stabilize hierarchical state, tact by tact — descending constraints, ascending
+> telemetry, fail-closed when entropy cannot be reduced.**
 
-- Lokalny transport pionowy i poziomy: `Wave` (bez zależności od zewnętrznego runtime'u).
-- Unifikacja i redukcja entropii: **splot** (opcjonalny — domyślny reduktor w SplotFusionUnit; można podmieniać lub pomijać).
-- Zero wiedzy domenowej — czysty mechanizm cybernetyczny.
-
-## PR Review jako przykład kaskady (n=4)
-
-```
-L3  Globalne repozytorium / architektura
-    ↓ `Wave` zstępująca: "tylko asynchroniczny dostęp do bazy"
-L2  Pull Request jako całość (kontekst biznesowy)
-L1  Plik / moduł
-L0  Linijka / diff hunk   ← takt przesuwa okno próbkowania takt po takcie
+```text
+  plant node (DFS tact)
+        │
+        ▼
+  raw signals (wave + detectors + node value)
+        │
+        ▼
+  fusion → ErrorSignal (aberration, confidence, residual)
+        │
+        ▼
+  homeostat → Actuation | SafetyInterlock | stable
+        │
+        ▼
+  ascending Wave (+ child layers when present)
 ```
 
-Na poziomie L0 detektor widzi `db.execute(...)`.  
-Dzięki fali zstępującej z L3 wie o globalnej zasadzie.  
-Generuje sygnał aberracji.  
-Splot unifikuje odczyty z wielu detektorów.  
-Jeśli pewność wysoka i poza progiem homeostatycznym → Actuation (np. blokada PR).
+Works the same over:
 
-Dokładnie ten sam mechanizm działa dla dokumentów, SDS, grafów zależności itd.
+- document → section → paragraph  
+- PR → file → hunk  
+- any host-built numeric plant  
 
-## Architektura (jeden takt)
+Takt does **not** parse documents or git. The host builds the plant and maps
+actuations back to the world.
 
-1. Próbkowanie stanu przez `ControlledPlant`
-2. Generowanie surowych sygnałów (detektory + efektory)
-3. Fuzja i redukcja przez `splot` → czysty **Wektor Aberracji (ErrorSignal)**
-4. Reakcja:
-   - Próg przekroczony → **Impuls Wykonawczy (Actuation)**
-   - Nieredukowalna entropia / niska pewność → **Interlokacja (SafetyInterlock)** + telemetria na fali wstępującej
+## Fully Mojo
 
-## Dowolne środowisko kontrolowane (Plant)
+| | |
+| --- | --- |
+| Language | **Mojo only** (`mojo/takt/`) |
+| Proof | Mojo smokes (`mojo/smoke/`) |
+| Host step | `tools/takt_step.sh` (Fala-compatible) |
+| Python | **none** in the product tree |
 
-`StateNode` + `ControlledPlant.sequential_scan()` to jedyne, co takt widzi.
+```text
+mojo/takt/     engine (+ step_main for host entry)
+mojo/smoke/    gates
+examples/      fixtures + cascade sketches
+docs/          conceptual model + Fala boundary
+tools/         mojo_run.sh, takt_step.sh
+```
 
-Kolejny węzeł = jeden takt zegara.
+## Quick proof
 
-To może być dowolna hierarchia:
-- dokument (ReviewKit)
-- kod źródłowy i diffy (PRKit)
-- dane chemiczne (SDSKit)
-- graf zależności
-- stan dowolnego systemu
-
-Wszystkie zewnętrzne "Kity" implementują `ControlledPlant` dla swojego kształtu drzewa i tłumaczą węzły na akcje w świecie zewnętrznym (np. Fala, GitHub, pliki, API). Fala jest opcjonalnym adapterem/runtime'em, nie zależnością core Taktu.
-
-Sam takt pozostaje całkowicie odcięty od domeny.
-
-## Kluczowe abstrakcje
-
-| Nazwa                    | Opis |
-|--------------------------|------|
-| `StateNode`              | Abstrakcyjny węzeł drzewa stanu (relacje rodzic-dziecko) |
-| `ControlledPlant`        | Środowisko z `sequential_scan()` (generuje takt zegara) |
-| `ProfilHomeostatyczny`   | Profil stabilności warstwy: zmienne krytyczne, progi, cutoff, entropy_threshold |
-| `SplotFusionUnit`        | Redukcja sygnałów przez `splot` |
-| `CascadeRegulator`       | Pojedyncza pętla sterowania (L0 … Ln-1), `evaluate()`, parent/child |
-| `TaktSequencer`          | Dyskretny zegar — jeden węzeł = jeden takt |
-| `Wave` / `ErrorSignal` / `Actuation` / `SafetyInterlock` | Lokalne struktury sygnałowe Taktu |
-
-## Instalacja (dla deweloperów)
+Requires Mojo (Pixi or sibling Fala/Splot `.pixi` env via `tools/mojo_run.sh`):
 
 ```bash
-uv sync --dev
-uv run pytest
-```
-
-- `splot-runtime` (editable, opcjonalne — `pip install -e .[splot]` lub uv z grupy extra)
-
-## Mojo (native cascade core)
-
-Pełny rdzeń kaskady jest też w **Mojo** (`mojo/takt/`) — bez Pythona w runtime. Lokalny fusion fallback jest zawsze włączony; Splot/Fala pozostają opcjonalne poza core.
-
-```bash
-# wymaga Mojo (pixi lub sibling Fala/Splot .pixi env)
 ./tools/mojo_run.sh mojo/smoke/full_smoke.mojo
-# lub poszczególne bramki:
-./tools/mojo_run.sh mojo/smoke/plant_scan.mojo
-./tools/mojo_run.sh mojo/smoke/fusion_fallback.mojo
-./tools/mojo_run.sh mojo/smoke/regulator_evaluate.mojo
-./tools/mojo_run.sh mojo/smoke/cascade_sequencer.mojo
+./tools/mojo_run.sh mojo/smoke/fala_stdio.mojo
+./tools/mojo_run.sh mojo/smoke/examples_plants.mojo
 ```
 
-Sukces: `takt cascade smoke ok` / `takt full smoke ok` (oraz tokeny `… smoke ok` z pozostałych smokes).
-
-## Użycie (przykład z czystym drzewem matematycznym)
-
-Poniższy przykład używa wyłącznie liczb, żeby pokazać, że takt nie zawiera żadnej wiedzy domenowej. W rzeczywistym zastosowaniu przekazujesz własne drzewo stanu — strukturę kodu, dokument, dane SDS, graf zależności, stan agenta, cokolwiek.
-
-```python
-from takt import (
-    ProfilHomeostatyczny, EssentialVariable,
-    MathTreePlant, TreeNode,
-    CascadeRegulator, TaktSequencer,
-):
-
-h = ProfilHomeostatyczny(0)
-h.add_variable(EssentialVariable("dev", tolerance=0.1))
-
-reg = CascadeRegulator(layer=0, homeostat=h)
-plant = MathTreePlant(TreeNode("root", 0.0, (TreeNode("n0", 0.7),)))
-
-seq = TaktSequencer(plant, reg)
-seq.run_one_tact()           # root
-result = seq.run_one_tact()  # n0
-
-print(result.signals.actuation)   # Actuation lub SafetyInterlock
-```
-
-## Testy
-
-Wszystkie testy używają wyłącznie mockowych drzew liczbowych. Zero zewnętrznych API i zero założeń domenowych.
+### One step as a subprocess (Fala-compatible)
 
 ```bash
-uv run pytest -q
+export TAKT_REQUEST_PATH=examples/fixtures/cascade_evaluate.request.json
+./tools/takt_step.sh
+# With FALA_EFFECTOR_OUTPUT_DIR set, writes output/result.json
 ```
 
-## Filozofia
+Success tokens: `takt … smoke ok`, JSON `"ok":true`.
 
-- **Strict fail-closed** — jeśli `splot` nie jest w stanie zredukować entropii poniżej progu zdefiniowanego w `ProfilHomeostatycznym`, system nie ma prawa wykonać impulsu wykonawczego.
-- **Pełna generyczność** — takt działa nad dowolnym drzewem stanu. Kod źródłowy, dokument tekstowy, dane chemiczne, graf zależności, stan agenta — to tylko różne implementacje `ControlledPlant`.
-- **Kaskada, nie płaska pętla** — lokalne `Wave` + takt dostarczają pionowego przepływu ograniczeń i telemetrii między warstwami. Zewnętrzna Fala może być adapterem transportowym, ale nie jest wymagana.
-- Modularność i testowalność.
-- Nazewnictwo zgodne z polską terminologią cybernetyczną (Marian Mazur i następcy).
+## Core abstractions
 
-## Rola Taktu w ekosystemie
+| Name | Role |
+| --- | --- |
+| `TreeNode` / `MathTreePlant` | Hierarchical plant; `sequential_scan` = clock |
+| `ProfilHomeostatyczny` | Layer tolerances, entropy / confidence gates |
+| `SplotFusionUnit` | Local fusion (disagreement-aware fallback) |
+| `CascadeRegulator` | One layer: collect → fuse → act / interlock |
+| `TaktSequencer` | Multi-tact driver over plant + layer chain |
+| `cascade_step` | Host JSON boundary (Fala / CLI) |
 
-- `Wave` = lokalna struktura sygnału między regulatorami; Fala = opcjonalny zewnętrzny runtime/adapter transportowy.
-- `splot` = uniwersalny filtr decyzyjny (redukcja entropii) — domyślna implementacja w SplotFusionUnit; można zastąpić własną strategią oceny.
-- `takt` = generyczny manager kaskady, który:
-  - przyjmuje dowolne drzewo (`StateNode` + `ControlledPlant`),
-  - zarządza n warstwami regulatorów z `ProfilHomeostatycznym`,
-  - wstrzykuje kontekst (w tym zewnętrzny cel/referencję) przez lokalne `Wave`,
-  - używa reduktora entropii (domyślnie splot) przed każdym taktem,
-  - dąży do homeostazy warstwy i całej kaskady.
-ReviewKit, SDSKit, PRKit itp. to tylko zewnętrzne adaptery, które uczą takt "rozmawiać" z konkretnym kształtem drzewa. Core `takt` pozostaje uniwersalny.
+## Fusion (local)
 
-## Zależności
+- Empty raw list → aberration `0`, confidence `1`, residual `0`, reducer `empty`.  
+- Agreeing signals → weighted-mean aberration, min confidence, residual ≥ `0.3`.  
+- High spread → `fallback_disagreement`.  
+- Opposing signs → `fallback_conflict`, low confidence, residual ≥ `0.85` (fail-closed).  
 
-- [fala](https://github.com/mikolaj92/Fala) — opcjonalny zewnętrzny runtime/adapter; nie jest zależnością Taktu
-- [splot](https://github.com/mikolaj92/splot) — opcjonalny reduktor sygnałów
+Optional **Splot** remains a separate organ the **host** may call before filling
+`raw_signals` / node values — takt core never imports Splot.
 
-## Licencja
+## Examples
+
+| Path | What |
+| --- | --- |
+| `examples/document-cascade/` | Document-shaped plant notes |
+| `examples/code-cascade/` | PR / file / hunk notes |
+| `examples/fala-integration/` | Subprocess effector wiring |
+| `examples/multi-organ/` | Fala + Splot + Takt composition |
+| `examples/fixtures/*.json` | Request payloads for `takt_step.sh` |
+
+## Boundaries (hard)
+
+| Outside Takt (host) | Inside Takt |
+| --- | --- |
+| Parsing docs / diffs / SDS | Numeric plant + DFS scan |
+| LLMs, linters, sensors | Fusion of already-produced signals |
+| Fala journals / scheduling | Evaluate / run envelope |
+| Product UI | Actuation & interlock records |
+
+## Related
+
+- [fala](https://github.com/mikolaj92/Fala) — optional host / journal / effector runner  
+- [splot](https://github.com/mikolaj92/splot) — optional multi-stream fusion organ  
+
+## License
 
 MIT

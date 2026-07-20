@@ -1,0 +1,14 @@
+{
+  "mode": "evaluate",
+  "now": "2026-01-01T12:00:00Z",
+  "plant_nodes": [
+    {"id": "node", "value": 0.0, "has_children": false, "parent_id": "", "layer": 0, "kind": "node"}
+  ],
+  "layers": [
+    {"layer": 0, "tolerance": 0.1, "min_confidence": 0.6, "entropy_threshold": 0.35}
+  ],
+  "raw_signals": [
+    {"signal_id": "d0", "node_id": "node", "detector": "lint", "deviation": 10.0, "confidence": 0.9},
+    {"signal_id": "d1", "node_id": "node", "detector": "sec", "deviation": -10.0, "confidence": 0.9}
+  ]
+}

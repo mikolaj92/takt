@@ -1,13 +1,15 @@
-# Python-generated files
+# Python tooling (metadata-only package; no product runtime)
 __pycache__/
 *.py[oc]
 build/
 dist/
 wheels/
 *.egg-info
-
-# Virtual environments
-.venv
+.venv/
+.pytest_cache/
+.ruff_cache/
+.python-version
+uv.lock
 
 # Mojo / pixi
 .pixi/

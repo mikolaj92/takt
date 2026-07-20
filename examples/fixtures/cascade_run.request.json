@@ -1,0 +1,16 @@
+{
+  "mode": "run",
+  "now": "2026-01-01T12:00:00Z",
+  "steps": 4,
+  "plant_nodes": [
+    {"id": "doc", "value": 0.0, "has_children": true, "parent_id": "", "layer": 2, "kind": "document"},
+    {"id": "section:0", "value": 0.05, "has_children": true, "parent_id": "doc", "layer": 1, "kind": "section"},
+    {"id": "section:0/p:0", "value": 0.02, "has_children": false, "parent_id": "section:0", "layer": 0, "kind": "paragraph"},
+    {"id": "section:0/p:1", "value": 0.8, "has_children": false, "parent_id": "section:0", "layer": 0, "kind": "paragraph"}
+  ],
+  "layers": [
+    {"layer": 0, "tolerance": 0.1, "min_confidence": 0.5, "entropy_threshold": 0.35},
+    {"layer": 1, "tolerance": 0.2, "min_confidence": 0.5, "entropy_threshold": 0.35}
+  ],
+  "constraint_dev": 0.01
+}

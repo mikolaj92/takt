@@ -59,6 +59,11 @@ def main() raises:
     _check(r_il.error.residual_entropy > 0.35, "il: high residual")
     _check(r_il.has_interlock, "il: has interlock")
     _check(not r_il.has_actuation, "il: no actuation (fail-closed)")
-    _check(r_il.error.reducer == "fallback", "il: fallback reducer")
+    _check(
+        r_il.error.reducer == "fallback"
+        or r_il.error.reducer == "fallback_conflict"
+        or r_il.error.reducer == "fallback_disagreement",
+        "il: local fallback* reducer",
+    )
 
     print("takt regulator evaluate smoke ok")

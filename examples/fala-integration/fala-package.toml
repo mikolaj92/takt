@@ -1,0 +1,8 @@
+# Stub package descriptor for hosts that register Takt as a cascade effector.
+# Fala (or another process host) runs tools/takt_step.sh; this file is documentation.
+
+name = "takt-cascade"
+version = "0.2.0"
+effector = "tools/takt_step.sh"
+step = "cascade"
+notes = "Host supplies plant_nodes + layers JSON; Takt returns actuation/interlock envelope."

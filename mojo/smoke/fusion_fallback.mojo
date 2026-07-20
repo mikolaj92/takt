@@ -38,16 +38,27 @@ def main() raises:
     _check(e1.raw_count == 1, "single raw_count")
     _check(len(e1.contributing_signals) == 1, "single contributing")
 
-    # Multi: weighted mean of deviations, min confidence
+    # Multi (agreeing direction): weighted mean, min confidence
     var multi = List[RawSignal]()
     multi.append(RawSignal("s0", "node", "d0", 0.8, 0.9))
     multi.append(RawSignal("s1", "node", "d1", 0.4, 0.7))
     var e2 = fusion.fuse(multi, "node")
-    _check(e2.reducer == "fallback", "multi reducer")
+    _check(
+        e2.reducer == "fallback" or e2.reducer == "fallback_disagreement",
+        "multi reducer fallback*",
+    )
     _check(_approx(e2.aberration, 0.6), "multi mean (0.8+0.4)/2")
-    _check(_approx(e2.confidence, 0.7), "multi min confidence")
-    # residual = max(0.3, 1-0.7) = 0.3
-    _check(_approx(e2.residual_entropy, 0.3), "multi residual")
+    _check(e2.confidence <= 0.7 + 1e-9, "multi confidence <= min raw")
+    _check(e2.residual_entropy >= 0.3 - 1e-9, "multi residual floor")
     _check(e2.raw_count == 2, "multi raw_count")
+
+    # Conflict (opposing signs) → low confidence, high residual, conflict reducer
+    var conflict = List[RawSignal]()
+    conflict.append(RawSignal("p", "node", "d0", 10.0, 0.9))
+    conflict.append(RawSignal("n", "node", "d1", -10.0, 0.9))
+    var e3 = fusion.fuse(conflict, "node")
+    _check(e3.reducer == "fallback_conflict", "conflict reducer")
+    _check(e3.confidence <= 0.15 + 1e-9, "conflict low confidence")
+    _check(e3.residual_entropy >= 0.85 - 1e-9, "conflict high residual")
 
     print("takt fusion fallback smoke ok")

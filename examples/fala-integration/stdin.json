@@ -1,0 +1,9 @@
+{
+  "mode": "evaluate",
+  "now": "2026-01-01T12:00:00Z",
+  "id": "hunk:0",
+  "value": 0.8,
+  "layers": [
+    {"layer": 0, "tolerance": 0.1, "min_confidence": 0.5, "entropy_threshold": 0.35}
+  ]
+}

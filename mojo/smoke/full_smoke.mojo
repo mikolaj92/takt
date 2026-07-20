@@ -5,7 +5,8 @@ from std.math import abs
 from takt.builder import LayerSpec, build_cascade
 from takt.fusion import SplotFusionUnit
 from takt.homeostat import EssentialVariable, ProfilHomeostatyczny
-from takt.plant import TreeNode, make_numeric_tree
+from takt.adapters_fala import cascade_step
+from takt.plant import TreeNode, make_document_plant, make_numeric_tree
 from takt.regulator import CascadeRegulator
 from takt.sequencer import TaktSequencer
 from takt.types import RawSignal, Wave
@@ -98,6 +99,31 @@ def main() raises:
     var multi = seq.run(2)
     _check(len(multi) == 2, "multi-step length")
     _check(multi[0].tact == 2 and multi[1].tact == 3, "advancing tact index")
+
+    # Document plant builder still drives real sequencer
+    var sec = List[Float64]()
+    sec.append(0.0)
+    var paras = List[List[Float64]]()
+    var one_p = List[Float64]()
+    one_p.append(0.85)
+    paras.append(one_p^)
+    var doc_layers = List[LayerSpec]()
+    var hd = ProfilHomeostatyczny(0, 0.35, 0.5)
+    hd.add_variable(EssentialVariable("dev", 0.1))
+    doc_layers.append(LayerSpec(0, hd))
+    var dseq = TaktSequencer(make_document_plant(sec^, paras^), build_cascade(doc_layers^))
+    _ = dseq.run_one_tact()
+    _ = dseq.run_one_tact()
+    var dpara = dseq.run_one_tact()
+    _check(dpara.signals.has_actuation, "document para actuation")
+
+    # Host JSON boundary (Fala effector surface)
+    var step = cascade_step(
+        "{\"mode\":\"evaluate\",\"plant_nodes\":[{\"id\":\"n\",\"value\":0.8,\"has_children\":false}],"
+        + "\"layers\":[{\"layer\":0,\"tolerance\":0.1,\"min_confidence\":0.5}]}"
+    )
+    _check(step.find("\"outcome\":\"actuation\"") >= 0, "cascade_step actuation")
+    _check(step.find("takt.tact_evaluated") >= 0, "cascade_step event")
 
     print("takt cascade smoke ok")
     print("takt full smoke ok")
