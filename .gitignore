@@ -15,3 +15,7 @@ uv.lock
 # Mojo / pixi
 .pixi/
 *.mojopkg
+dist/
+
+python/takt/__mojocache__/
+.venv-pybind/

@@ -2,7 +2,20 @@
 
 **Version 0.2.0** — exclusive Mojo hierarchical cascade engine.
 
-**Takt is a fully Mojo library.** There is no Python runtime product tree.
+**Takt is a fully Mojo library.**
+
+## Thin Python binding (optional)
+
+```python
+import takt
+result = takt.cascade_step({"mode": "evaluate", "plant_nodes": [...], "layers": [...]})
+# same JSON as tools/takt_step.sh
+```
+
+Requires Mojo on PATH (or sibling Fala pixi). `tools/takt_step.sh` remains the
+Fala subprocess contract. No dual engine.
+
+ There is no Python runtime product tree.
 
 ## One job
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0
+
+**Thin optional Python binding** over the exclusive Mojo cascade engine.
+
+### Added
+- `python/takt/`: `cascade_step` (same JSON as `tools/takt_step.sh`)
+- JIT `_native` extension compile helper
+- Python smoke tests
+
+### Unchanged
+- Mojo engine, subprocess step, no dual engine
+
+
 Takt follows semantic versioning.
 
 ## 0.2.0
