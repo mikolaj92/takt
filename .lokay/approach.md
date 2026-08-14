@@ -1,29 +1,25 @@
 # Approach plan
 
-<!-- lokay-approach source=deterministic repo=mikolaj92/takt issue=24 -->
+<!-- lokay-approach source=deterministic repo=mikolaj92/takt issue=25 -->
 
 Repository: `mikolaj92/takt`  
-Issue: #24 — Default branch develop to Python 0.1.0, nie Mojo v0.3.0 z main
+Issue: #25 — README/pixi na mainie nadal v0.2.0, tree jest 0.3.0 z python/takt
 
 ## Goal
 
-Default branch GitHuba to `develop`: Python 0.1.0, `fala-runtime` / `splot-runtime` z `path = \"../Fala\"` i `\"../splot\"`. Paczki nazywają się `fala` i `splot`, nie `*-runtime`.
+Align `main` product stamps with the 0.3.0 tree (`python/takt`). README/pixi must not still advertise exclusive-Mojo 0.2.0 (`Version 0.2.0`, „There is no Python runtime product tree”, `--branch v0.2.0`, `takt-0.2.0.tar.gz`).
+
+Inspection: stamps were already 0.3.0 after #26. Lock the #25 leftovers with a regression test rather than restamping.
 
 ## Files likely touched
 
-- `pyproject.toml`
-- `README.md`
-- `pixi.toml`
-- `mojo/takt/__init__.mojo`
-- `examples/fala-integration/fala-package.toml`
-- `examples/multi-organ/README.md`
-- `CHANGELOG.md`
 - `python/tests/test_python_binding.py`
+- `CHANGELOG.md`
+- `pixi.toml` / `pyproject.toml` / `README.md` (already 0.3.0; no restamp)
 
 ## Test plan
 
-- `python3 -m pytest python/tests/test_python_binding.py::test_product_is_mojo_030_not_stale_python_010 -q` (no Mojo)
-- Binding tests only if a Mojo toolchain is present
+- `uv run pytest python/tests/test_python_binding.py::test_product_stamps_are_030_not_leftover_mojo_only_020`
 
 ## Non-goals
 

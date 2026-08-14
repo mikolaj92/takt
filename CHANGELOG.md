@@ -11,6 +11,7 @@
 
 ### Docs / packaging
 - Product stamps (README, `pixi.toml`, Mojo `TAKT_VERSION`, fala-package) are 0.3.0.
+- README / pixi no longer advertise leftover exclusive-Mojo 0.2.0 (`v0.2.0` clone, `takt-0.2.0.tar.gz`).
 - Pin tag `v0.3.0` — an unpinned clone follows GitHub default `develop` (stale Python 0.1.0).
 - Sibling organs are packages `fala` / `splot`, not `fala-runtime` / `splot-runtime`.
 - Dev extra: `uv sync --extra dev` (`[project.optional-dependencies]`; not `uv sync --dev`).
