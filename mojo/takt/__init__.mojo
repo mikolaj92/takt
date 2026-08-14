@@ -1,10 +1,11 @@
-"""takt: generic hierarchical cascade control engine (Mojo-native).
+"""takt: generic hierarchical cascade control engine (Mojo engine).
 
 Local Wave transport; optional external Fala/Splot adapters are host-side.
 Always-on local fusion covers empty / weighted-mean / disagreement / fail-closed.
+Optional Python binding is `python/takt` over this same engine.
 """
 
-comptime TAKT_VERSION = "0.2.0"
+comptime TAKT_VERSION = "0.3.0"
 
 from takt.types import (
     Wave,

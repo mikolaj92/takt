@@ -9,6 +9,12 @@
 - JIT `_native` extension compile helper
 - Python smoke tests
 
+### Docs / packaging
+- Product stamps (README, `pixi.toml`, Mojo `TAKT_VERSION`, fala-package) are 0.3.0.
+- Pin tag `v0.3.0` — an unpinned clone follows GitHub default `develop` (stale Python 0.1.0).
+- Sibling organs are packages `fala` / `splot`, not `fala-runtime` / `splot-runtime`.
+- Dev extra: `uv sync --extra dev` (`[project.optional-dependencies]`; not `uv sync --dev`).
+
 ### Unchanged
 - Mojo engine, subprocess step, no dual engine
 
