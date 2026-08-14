@@ -48,6 +48,7 @@ cd ../Splot && SPLOT_REQUEST_PATH=examples/fixtures/player_camera_director.reque
 cd ../Fala && mise exec -- pixi run splot-integration
 ```
 
-Takt v0.2 ships the **effector side** (`tools/takt_step.sh`). A Fala
+Takt v0.3 ships the **effector side** (`tools/takt_step.sh`) plus an optional
+thin `python/takt` binding over the same step. A Fala
 `domain_packs/takt` vocabulary pack can live in the Fala repo later (same pattern
 as `domain_packs/splot`) without coupling core takt to Fala types.
