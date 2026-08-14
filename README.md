@@ -1,21 +1,10 @@
 # takt
 
-**Version 0.2.0** — exclusive Mojo hierarchical cascade engine.
+**Version 0.3.0** — Mojo hierarchical cascade engine + optional thin Python binding.
 
-**Takt is a fully Mojo library.**
-
-## Thin Python binding (optional)
-
-```python
-import takt
-result = takt.cascade_step({"mode": "evaluate", "plant_nodes": [...], "layers": [...]})
-# same JSON as tools/takt_step.sh
-```
-
-Requires Mojo on PATH (or sibling Fala pixi). `tools/takt_step.sh` remains the
-Fala subprocess contract. No dual engine.
-
- There is no Python runtime product tree.
+**Takt is a Mojo library.** The engine lives in `mojo/takt/`. An optional
+in-process Python host API (`python/takt`) wraps the same cascade step;
+`tools/takt_step.sh` stays the official Fala subprocess contract. No dual engine.
 
 ## One job
 
@@ -47,37 +36,39 @@ Works the same over:
 Takt does **not** parse documents or git. The host builds the plant and maps
 actuations back to the world.
 
-## Fully Mojo
+## Layout
 
 | | |
 | --- | --- |
-| Language | **Mojo only** (`mojo/takt/`) |
-| Proof | Mojo smokes (`mojo/smoke/`) |
+| Language | **Mojo engine** (`mojo/takt/`) |
+| Proof | Mojo smokes (`mojo/smoke/`) + optional Python binding tests |
 | Host step | `tools/takt_step.sh` (Fala-compatible) |
-| Python | **none** in the product tree |
+| Python | **optional thin binding** (`python/takt`) — same JSON contract |
 
 ```text
 mojo/takt/     engine (+ step_main for host entry)
 mojo/smoke/    gates
+python/takt/   optional in-process host API (`cascade_step`)
 examples/      fixtures + cascade sketches
 docs/          conceptual model + Fala boundary
 tools/         mojo_run.sh, takt_step.sh
 ```
 
-## Get Mojo-only Takt (0.2.0)
+## Get Takt 0.3.0
 
-The product is the **git tree** (or GitHub source archive of the tag). There is
-no Python runtime to `pip install`.
+The product is the **git tree** (or GitHub source archive of the tag). Pin
+release tag `v0.3.0` — that tree is the Mojo engine plus optional `python/takt`
+(`pyproject.toml` 0.3.0). Do not pin `v0.2.0` if you need the Python binding.
 
 ```bash
-# Recommended: pin a release tag
-git clone --branch v0.2.0 --depth 1 https://github.com/mikolaj92/takt.git
+# Recommended: pin the product tag
+git clone --branch v0.3.0 --depth 1 https://github.com/mikolaj92/takt.git
 cd takt
 
 # Or download the source archive
-curl -fsSL -o takt-0.2.0.tar.gz \
-  https://github.com/mikolaj92/takt/archive/refs/tags/v0.2.0.tar.gz
-tar -xzf takt-0.2.0.tar.gz && cd takt-0.2.0
+curl -fsSL -o takt-0.3.0.tar.gz \
+  https://github.com/mikolaj92/takt/archive/refs/tags/v0.3.0.tar.gz
+tar -xzf takt-0.3.0.tar.gz && cd takt-0.3.0
 ```
 
 **Use as a Mojo import path** (from any host project):
@@ -99,7 +90,20 @@ export TAKT_REQUEST_PATH=examples/fixtures/cascade_evaluate.request.json
 Requires a Mojo toolchain (`pixi` env from this repo, or sibling Fala/Splot
 `.pixi` — `tools/mojo_run.sh` / `tools/takt_step.sh` locate it).
 
-Release notes & archives: https://github.com/mikolaj92/takt/releases/tag/v0.2.0
+Release notes & archives: https://github.com/mikolaj92/takt/releases/tag/v0.3.0
+
+### Optional Python binding
+
+Mojo remains the product engine. An optional in-process host API:
+
+```python
+import takt
+result = takt.cascade_step({"mode": "evaluate", "plant_nodes": [...], "layers": [...]})
+# same JSON as tools/takt_step.sh
+```
+
+Requires Mojo on PATH (or sibling Fala pixi). `tools/takt_step.sh` remains the
+Fala subprocess contract. No dual engine.
 
 ## Quick proof
 

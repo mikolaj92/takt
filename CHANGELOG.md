@@ -9,6 +9,10 @@
 - JIT `_native` extension compile helper
 - Python smoke tests
 
+### Docs / packaging
+- Align leftover 0.2.0 product stamps (README, `pixi.toml`, Mojo `TAKT_VERSION`,
+  fala-package) with the shipped 0.3.0 tree (`python/takt`, `pyproject.toml`).
+
 ### Unchanged
 - Mojo engine, subprocess step, no dual engine
 
