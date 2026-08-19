@@ -29,4 +29,5 @@ if ! command -v mojo >/dev/null 2>&1; then
   exit 127
 fi
 cd "$root"
-exec mojo run -I mojo mojo/takt/step_main.mojo
+"$root/tools/setup_ember_json.sh"
+exec mojo run -I mojo -I vendor/EmberJson mojo/takt/step_main.mojo

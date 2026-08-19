@@ -51,7 +51,8 @@ mojo/smoke/    gates
 python/takt/   optional in-process host API (`cascade_step`)
 examples/      fixtures + cascade sketches
 docs/          conceptual model + Fala boundary
-tools/         mojo_run.sh, takt_step.sh
+tools/         dependency setup, mojo_run.sh, takt_step.sh
+vendor/        dynamically managed EmberJson sources (gitignored)
 ```
 
 ## Get Takt 0.3.0
@@ -91,8 +92,9 @@ export TAKT_REQUEST_PATH=examples/fixtures/cascade_evaluate.request.json
 ./tools/takt_step.sh
 ```
 
-Requires a Mojo toolchain (`pixi` env from this repo, or sibling Fala/Splot
-`.pixi` — `tools/mojo_run.sh` / `tools/takt_step.sh` locate it).
+Requires stable Mojo 1.0 (`pixi` env from this repo, or sibling Fala `.pixi`).
+The run scripts pin, fetch, and patch the gitignored EmberJson dependency used
+only at the JSON process boundary.
 
 Release notes & archives: https://github.com/mikolaj92/takt/releases/tag/v0.3.0
 
@@ -121,7 +123,7 @@ Fala subprocess contract. No dual engine.
 
 ## Quick proof
 
-Requires Mojo (Pixi or sibling Fala/Splot `.pixi` env via `tools/mojo_run.sh`):
+Requires stable Mojo 1.0 (Pixi or sibling Fala `.pixi` env via `tools/mojo_run.sh`):
 
 ```bash
 ./tools/mojo_run.sh mojo/smoke/full_smoke.mojo
@@ -148,7 +150,7 @@ Success tokens: `takt … smoke ok`, JSON `"ok":true`.
 | `SplotFusionUnit` | Local fusion (disagreement-aware fallback) |
 | `CascadeRegulator` | One layer: collect → fuse → act / interlock |
 | `TaktSequencer` | Multi-tact driver over plant + layer chain |
-| `cascade_step` | Host JSON boundary (Fala / CLI) |
+| `cascade_step` | Host JSON boundary (Fala / CLI), parsed by EmberJson |
 
 ## Fusion (local)
 
@@ -158,7 +160,8 @@ Success tokens: `takt … smoke ok`, JSON `"ok":true`.
 - Opposing signs → `fallback_conflict`, low confidence, residual ≥ `0.85` (fail-closed).  
 
 Optional **Splot** remains a separate organ the **host** may call before filling
-`raw_signals` / node values — takt core never imports Splot.
+`raw_signals` / node values — takt core never imports Splot. JSON is likewise
+confined to `adapters_fala`; the cascade core operates on typed Mojo structures.
 
 ## Examples
 

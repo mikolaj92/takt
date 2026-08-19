@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Pin the product toolchain to stable Mojo 1.0.0 instead of a nightly build.
+- Replace the partial in-tree `json_lite` parser with pinned EmberJson at the
+  Fala/CLI wire boundary; the cascade core remains fully typed Mojo.
+- Add strict JSON shape validation plus Unicode, escaping, and malformed-input
+  contract coverage.
+- Dynamically fetch and apply the shared Mojo 1.0 EmberJson compatibility patch.
+
 ## 0.3.0
 
 **Thin optional Python binding** over the exclusive Mojo cascade engine.

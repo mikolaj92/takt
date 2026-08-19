@@ -10,7 +10,9 @@ Fala (or any host) owns:
 - optional pre-fusion of detectors (e.g. via **Splot**)  
 - journals / persistence  
 
-Takt only runs cascade evaluate / multi-tact run under layer homeostats.
+Takt only runs cascade evaluate / multi-tact run under layer homeostats. JSON
+is a process-boundary format parsed with EmberJson; the cascade core itself uses
+typed Mojo structures.
 
 ## Mapping
 

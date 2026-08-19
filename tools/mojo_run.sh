@@ -26,13 +26,15 @@ setup_mojo_env() {
 
 run_with_mojo() {
   cd "$root"
-  exec mojo run -I mojo "$file"
+  "$root/tools/setup_ember_json.sh"
+  exec mojo run -I mojo -I vendor/EmberJson "$file"
 }
 
 if command -v pixi >/dev/null 2>&1 && [[ -f "$root/pixi.toml" ]]; then
   cd "$root"
   if pixi run -- true 2>/dev/null; then
-    exec pixi run -- bash -c "mojo run -I mojo \"$file\""
+    "$root/tools/setup_ember_json.sh"
+    exec pixi run -- bash -c "mojo run -I mojo -I vendor/EmberJson \"$file\""
   fi
 fi
 

@@ -14,6 +14,7 @@ from types import ModuleType
 _PACKAGE_DIR = Path(__file__).resolve().parent
 _NATIVE_MOJO = _PACKAGE_DIR / "_native.mojo"
 _CACHE_DIR_NAME = "__mojocache__"
+_EMBER_JSON_REV = "951f4ef28d0c2748a30b2c5e43e139411ccca5ef"
 
 
 def repo_root() -> Path:
@@ -29,12 +30,29 @@ def repo_root() -> Path:
     )
 
 
+def _ensure_ember_json(root: Path) -> Path:
+    vendor = root / "vendor" / "EmberJson"
+    setup = root / "tools" / "setup_ember_json.sh"
+    if not setup.is_file():
+        raise RuntimeError(f"missing EmberJson setup script: {setup}")
+    proc = subprocess.run(["sh", str(setup)], cwd=root, capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise RuntimeError(
+            "takt EmberJson setup failed:\n" + (proc.stderr or proc.stdout or "")
+        )
+    if not (vendor / "emberjson" / "__init__.mojo").is_file():
+        raise RuntimeError(f"EmberJson sources missing after setup: {vendor}")
+    return vendor
+
+
 def _source_hash(root: Path) -> str:
     paths = sorted(
         list(_PACKAGE_DIR.glob("*.mojo"))
         + list((root / "mojo" / "takt").rglob("*.mojo"))
+        + list((root / "patches").glob("emberjson-*.patch"))
     )
     h = hashlib.sha256()
+    h.update(_EMBER_JSON_REV.encode())
     for p in paths:
         try:
             rel = str(p.relative_to(root))
@@ -95,6 +113,7 @@ def ensure_native() -> ModuleType:
     if not _NATIVE_MOJO.is_file():
         raise RuntimeError(f"missing {_NATIVE_MOJO}")
     root = repo_root()
+    ember_json = _ensure_ember_json(root)
     digest = _source_hash(root)
     cache_dir = _PACKAGE_DIR / _CACHE_DIR_NAME
     cache_dir.mkdir(exist_ok=True)
@@ -112,6 +131,8 @@ def ensure_native() -> ModuleType:
             "shared-lib",
             "-I",
             str(root / "mojo"),
+            "-I",
+            str(ember_json),
             "-o",
             str(so_path),
         ]
