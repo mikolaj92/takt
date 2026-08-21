@@ -1,6 +1,6 @@
 [project]
 name = "takt"
-version = "0.3.0"
+version = "0.3.1"
 description = "Generic hierarchical cascade (Mojo) + thin optional Python binding."
 readme = "README.md"
 requires-python = ">=3.12"

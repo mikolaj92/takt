@@ -1,7 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.3.1
 
+- Tag the already-migrated Mojo **1.0.0** `main` line for consumers.
+- Prefer this checkout's Pixi `mojo == 1.0.0` over a global nightly SDK when compiling `_native`.
 - Pin the product toolchain to stable Mojo 1.0.0 instead of a nightly build.
 - Replace the partial in-tree `json_lite` parser with pinned EmberJson at the
   Fala/CLI wire boundary; the cascade core remains fully typed Mojo.
