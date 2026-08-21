@@ -66,19 +66,13 @@ def _source_hash(root: Path) -> str:
 def _mojo_env() -> dict[str, str]:
     """Env so ``mojo build`` can find ``std`` and the driver."""
     env = dict(os.environ)
-    try:
-        from mojo._package_root import get_package_root  # type: ignore[import-not-found]
-        from mojo.run import _sdk_default_env  # type: ignore[import-not-found]
-
-        root = get_package_root()
-        if root is not None:
-            return {**_sdk_default_env(), **env}
-    except Exception:
-        pass
+    local_pixi = repo_root() / ".pixi" / "envs" / "default"
     candidates = [
+        local_pixi,
         Path(env["CONDA_PREFIX"]) if env.get("CONDA_PREFIX") else None,
-        Path.home() / "Developer" / "OSS" / "Fala" / ".pixi" / "envs" / "default",
+        Path.home() / "Developer" / "takt" / ".pixi" / "envs" / "default",
         Path.home() / "Developer" / "OSS" / "takt" / ".pixi" / "envs" / "default",
+        Path.home() / "Developer" / "OSS" / "Fala" / ".pixi" / "envs" / "default",
     ]
     for root in candidates:
         if root is None:
@@ -86,12 +80,21 @@ def _mojo_env() -> dict[str, str]:
         mojo_bin = root / "bin" / "mojo"
         import_path = root / "lib" / "mojo"
         if mojo_bin.is_file() and import_path.is_dir():
-            env.setdefault("MODULAR_MAX_PACKAGE_ROOT", str(root))
-            env.setdefault("MODULAR_MOJO_MAX_PACKAGE_ROOT", str(root))
-            env.setdefault("MODULAR_MOJO_MAX_DRIVER_PATH", str(mojo_bin))
-            env.setdefault("MODULAR_MOJO_MAX_IMPORT_PATH", str(import_path))
+            env["MODULAR_MAX_PACKAGE_ROOT"] = str(root)
+            env["MODULAR_MOJO_MAX_PACKAGE_ROOT"] = str(root)
+            env["MODULAR_MOJO_MAX_DRIVER_PATH"] = str(mojo_bin)
+            env["MODULAR_MOJO_MAX_IMPORT_PATH"] = str(import_path)
             env["PATH"] = str(root / "bin") + os.pathsep + env.get("PATH", "")
-            break
+            return env
+    try:
+        from mojo._package_root import get_package_root  # type: ignore[import-not-found]
+        from mojo.run import _sdk_default_env  # type: ignore[import-not-found]
+
+        package_root = get_package_root()
+        if package_root is not None:
+            return {**_sdk_default_env(), **env}
+    except Exception:
+        pass
     return env
 
 
@@ -103,9 +106,9 @@ def _mojo_bin(env: dict[str, str]) -> str:
     found = shutil.which("mojo", path=env.get("PATH"))
     if found:
         return found
-    fala = Path.home() / "Developer" / "OSS" / "Fala" / ".pixi" / "envs" / "default" / "bin" / "mojo"
-    if fala.is_file():
-        return str(fala)
+    local = repo_root() / ".pixi" / "envs" / "default" / "bin" / "mojo"
+    if local.is_file():
+        return str(local)
     raise RuntimeError("mojo executable not found")
 
 

@@ -1,6 +1,6 @@
 # takt
 
-**Version 0.3.0** — Mojo hierarchical cascade engine + optional thin Python binding.
+**Version 0.3.1** — Mojo hierarchical cascade engine + optional thin Python binding.
 
 **Takt is a Mojo library.** The engine lives in `mojo/takt/`. An optional
 in-process Python host API (`python/takt`) wraps the same cascade step;
@@ -55,25 +55,25 @@ tools/         dependency setup, mojo_run.sh, takt_step.sh
 vendor/        dynamically managed EmberJson sources (gitignored)
 ```
 
-## Get Takt 0.3.0
+## Get Takt 0.3.1
 
 Pin a release. An unpinned `git clone` follows GitHub's default branch and is
 **not** the product tree (historical Python 0.1.0 with `fala-runtime` /
-`splot-runtime` path deps). The product is **0.3.0** on `main` / tag `v0.3.0`.
-reviewkit pins `takt @ …/takt.git@v0.3.0`.
+`splot-runtime` path deps). The product is **0.3.1** on `main` / tag `v0.3.1`.
+reviewkit pins `takt @ …/takt.git@v0.3.1`.
 
 Sibling organs are packages **`fala`** and **`splot`**, not `*-runtime`.
-Takt 0.3.0 does not depend on them.
+Takt 0.3.1 does not depend on them.
 
 ```bash
 # Recommended: pin the product tag
-git clone --branch v0.3.0 --depth 1 https://github.com/mikolaj92/takt.git
+git clone --branch v0.3.1 --depth 1 https://github.com/mikolaj92/takt.git
 cd takt
 
 # Or download the source archive
-curl -fsSL -o takt-0.3.0.tar.gz \
-  https://github.com/mikolaj92/takt/archive/refs/tags/v0.3.0.tar.gz
-tar -xzf takt-0.3.0.tar.gz && cd takt-0.3.0
+curl -fsSL -o takt-0.3.1.tar.gz \
+  https://github.com/mikolaj92/takt/archive/refs/tags/v0.3.1.tar.gz
+tar -xzf takt-0.3.1.tar.gz && cd takt-0.3.1
 ```
 
 **Use as a Mojo import path** (from any host project):
@@ -96,7 +96,7 @@ Requires stable Mojo 1.0 (`pixi` env from this repo, or sibling Fala `.pixi`).
 The run scripts pin, fetch, and patch the gitignored EmberJson dependency used
 only at the JSON process boundary.
 
-Release notes & archives: https://github.com/mikolaj92/takt/releases/tag/v0.3.0
+Release notes & archives: https://github.com/mikolaj92/takt/releases/tag/v0.3.1
 
 ### Optional Python binding
 

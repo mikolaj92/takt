@@ -2,7 +2,7 @@
 # Fala (or another process host) runs tools/takt_step.sh; this file is documentation.
 
 name = "takt-cascade"
-version = "0.3.0"
+version = "0.3.1"
 effector = "tools/takt_step.sh"
 step = "cascade"
 notes = "Host supplies plant_nodes + layers JSON; Takt returns actuation/interlock envelope."
