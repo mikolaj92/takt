@@ -1,7 +1,11 @@
+# Historical Python 0.1.0 (GitHub default `develop`).
+# Product is Mojo 0.3.1 on `main` / tag `v0.3.1`.
+# Path pins below are this tree's sibling layout, not the product packages.
+
 [project]
 name = "takt"
 version = "0.1.0"
-description = "Generyczny silnik kaskadowego przetwarzania hierarchicznego (cybernetyka / teoria systemów autonomicznych). Transport pionowy via fala, fuzja via splot."
+description = "Historical Python 0.1.0 (default branch develop). Product is Mojo 0.3.1 on main / v0.3.1."
 readme = "README.md"
 authors = [
   { name = "mikolaj92", email = "mikolaj92@users.noreply.github.com" }
