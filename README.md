@@ -1,5 +1,19 @@
 # takt
 
+> **This default branch (`develop`) is historical Python 0.1.0, not the product.**
+> An unpinned `git clone` follows GitHub `HEAD` and lands here: `fala-runtime` /
+> `splot-runtime` pinned to sibling paths `../Fala` and `../splot`.
+>
+> **Product: Mojo 0.3.1** on [`main`](https://github.com/mikolaj92/takt/tree/main)
+> / tag [`v0.3.1`](https://github.com/mikolaj92/takt/releases/tag/v0.3.1).
+> Sibling organs are packages **`fala`** and **`splot`**, not `*-runtime`.
+>
+> ```bash
+> git clone --branch v0.3.1 --depth 1 https://github.com/mikolaj92/takt.git
+> ```
+
+**Ta gałąź to historyczny silnik Python 0.1.0.** Produkt (Mojo 0.3.1) jest na `main` / `v0.3.1`.
+
 **Generyczny silnik kaskadowego przetwarzania hierarchicznego** (cybernetyka / teoria systemów autonomicznych).
 
 ` takt ` to abstrakcyjny, generyczny rdzeń wykonawczy do sekwencyjnego stabilizowania i przetwarzania n-warstwowych (n ≥ 2) hierarchicznych struktur stanu.
@@ -29,16 +43,19 @@
 | `TaktSequencer`          | Dyskretny zegar — jeden węzeł = jeden takt |
 | `FalaWave` / `ErrorSignal` / `Actuation` / `SafetyInterlock` | Struktury sygnałowe |
 
-## Instalacja (dla deweloperów)
+## Instalacja (historyczne `develop` 0.1.0)
+
+Ta sekcja dotyczy **tego** drzewa (Python 0.1.0). Produkt Mojo 0.3.1 instaluje się z `main` / `v0.3.1`.
 
 ```bash
+# wymaga checkoutów ../Fala i ../splot (path pin w pyproject.toml)
 uv sync --dev
 uv run pytest
 ```
 
-Zależności:
-- `fala-runtime` (editable)
-- `splot-runtime` (editable)
+Zależności (nazwy historyczne, nie paczki produktu):
+- `fala-runtime` (editable, `path = "../Fala"`)
+- `splot-runtime` (editable, `path = "../splot"`)
 
 ## Użycie (przykład z czystym drzewem matematycznym)
 
