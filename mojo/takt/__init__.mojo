@@ -5,7 +5,7 @@ Always-on local fusion covers empty / weighted-mean / disagreement / fail-closed
 Optional Python binding is `python/takt` over this same engine.
 """
 
-comptime TAKT_VERSION = "0.3.1"
+comptime TAKT_VERSION = "0.3.2"
 
 from takt.types import (
     Wave,

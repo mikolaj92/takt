@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.2
+
+- Serialize EmberJson setup and native compilation across threads and processes.
+- Recheck native cache state under the shared lock, build to a unique temporary
+  path, and publish complete shared libraries atomically.
+- Track `uv.lock` for the optional Python product binding.
+- Make `main` the GitHub default branch and align clone documentation.
+
 ## 0.3.1
 
 - Tag the already-migrated Mojo **1.0.0** `main` line for consumers.
