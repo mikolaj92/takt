@@ -57,10 +57,9 @@ vendor/        dynamically managed EmberJson sources (gitignored)
 
 ## Get Takt 0.3.1
 
-Pin a release. An unpinned `git clone` follows GitHub's default branch and is
-**not** the product tree (historical Python 0.1.0 with `fala-runtime` /
-`splot-runtime` path deps). The product is **0.3.1** on `main` / tag `v0.3.1`.
-reviewkit pins `takt @ …/takt.git@v0.3.1`.
+The GitHub default branch is the current product tree. Pin release `v0.3.1`
+when a consumer needs reproducible dependency resolution; reviewkit uses that
+exact release boundary.
 
 Sibling organs are packages **`fala`** and **`splot`**, not `*-runtime`.
 Takt 0.3.1 does not depend on them.
