@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import fcntl
 import hashlib
 import importlib.util
 import os
 import shutil
 import subprocess
 import sys
+import tempfile
+import threading
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from types import ModuleType
 
@@ -15,6 +20,7 @@ _PACKAGE_DIR = Path(__file__).resolve().parent
 _NATIVE_MOJO = _PACKAGE_DIR / "_native.mojo"
 _CACHE_DIR_NAME = "__mojocache__"
 _EMBER_JSON_REV = "951f4ef28d0c2748a30b2c5e43e139411ccca5ef"
+_NATIVE_BUILD_LOCK = threading.Lock()
 
 
 def repo_root() -> Path:
@@ -112,20 +118,36 @@ def _mojo_bin(env: dict[str, str]) -> str:
     raise RuntimeError("mojo executable not found")
 
 
-def ensure_native() -> ModuleType:
-    if not _NATIVE_MOJO.is_file():
-        raise RuntimeError(f"missing {_NATIVE_MOJO}")
-    root = repo_root()
-    ember_json = _ensure_ember_json(root)
-    digest = _source_hash(root)
-    cache_dir = _PACKAGE_DIR / _CACHE_DIR_NAME
+@contextmanager
+def _cross_process_lock(lock_path: Path) -> Iterator[None]:
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with _NATIVE_BUILD_LOCK, lock_path.open("a+b") as handle:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
+def _ensure_native_artifact(root: Path, *, cache_dir: Path | None = None) -> Path:
+    cache_dir = cache_dir or (_PACKAGE_DIR / _CACHE_DIR_NAME)
     cache_dir.mkdir(exist_ok=True)
-    so_path = cache_dir / f"_native.hash-{digest}.so"
-    if not so_path.is_file():
+    lock_path = cache_dir / ".native-build.lock"
+    with _cross_process_lock(lock_path):
+        ember_json = _ensure_ember_json(root)
+        digest = _source_hash(root)
+        so_path = cache_dir / f"_native.hash-{digest}.so"
+        if so_path.is_file():
+            return so_path
         for old in cache_dir.glob("_native.hash-*.so"):
             old.unlink(missing_ok=True)
         env = _mojo_env()
         mojo = _mojo_bin(env)
+        descriptor, temp_name = tempfile.mkstemp(
+            prefix=f"{so_path.stem}.", suffix=".tmp.so", dir=cache_dir
+        )
+        os.close(descriptor)
+        temp_path = Path(temp_name)
         cmd = [
             mojo,
             "build",
@@ -137,13 +159,26 @@ def ensure_native() -> ModuleType:
             "-I",
             str(ember_json),
             "-o",
-            str(so_path),
+            str(temp_path),
         ]
-        proc = subprocess.run(cmd, env=env, capture_output=True, text=True)
-        if proc.returncode != 0:
-            raise RuntimeError(
-                "takt native build failed:\n" + (proc.stderr or proc.stdout or "")
-            )
+        try:
+            proc = subprocess.run(cmd, env=env, capture_output=True, text=True)
+            if proc.returncode != 0:
+                raise RuntimeError(
+                    "takt native build failed:\n" + (proc.stderr or proc.stdout or "")
+                )
+            if not temp_path.is_file():
+                raise RuntimeError("takt native build did not produce a shared library")
+            os.replace(temp_path, so_path)
+        finally:
+            temp_path.unlink(missing_ok=True)
+        return so_path
+
+
+def ensure_native() -> ModuleType:
+    if not _NATIVE_MOJO.is_file():
+        raise RuntimeError(f"missing {_NATIVE_MOJO}")
+    so_path = _ensure_native_artifact(repo_root())
     spec = importlib.util.spec_from_file_location("takt._native", so_path)
     if spec is None or spec.loader is None:
         raise RuntimeError(f"cannot load {so_path}")
