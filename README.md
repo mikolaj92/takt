@@ -1,6 +1,6 @@
 # takt
 
-**Version 0.3.1** — Mojo hierarchical cascade engine + optional thin Python binding.
+**Version 0.3.2** — Mojo hierarchical cascade engine + optional thin Python binding.
 
 **Takt is a Mojo library.** The engine lives in `mojo/takt/`. An optional
 in-process Python host API (`python/takt`) wraps the same cascade step;
@@ -55,24 +55,24 @@ tools/         dependency setup, mojo_run.sh, takt_step.sh
 vendor/        dynamically managed EmberJson sources (gitignored)
 ```
 
-## Get Takt 0.3.1
+## Get Takt 0.3.2
 
-The GitHub default branch is the current product tree. Pin release `v0.3.1`
+The GitHub default branch is the current product tree. Pin release `v0.3.2`
 when a consumer needs reproducible dependency resolution; reviewkit uses that
 exact release boundary.
 
 Sibling organs are packages **`fala`** and **`splot`**, not `*-runtime`.
-Takt 0.3.1 does not depend on them.
+Takt 0.3.2 does not depend on them.
 
 ```bash
 # Recommended: pin the product tag
-git clone --branch v0.3.1 --depth 1 https://github.com/mikolaj92/takt.git
+git clone --branch v0.3.2 --depth 1 https://github.com/mikolaj92/takt.git
 cd takt
 
 # Or download the source archive
-curl -fsSL -o takt-0.3.1.tar.gz \
-  https://github.com/mikolaj92/takt/archive/refs/tags/v0.3.1.tar.gz
-tar -xzf takt-0.3.1.tar.gz && cd takt-0.3.1
+curl -fsSL -o takt-0.3.2.tar.gz \
+  https://github.com/mikolaj92/takt/archive/refs/tags/v0.3.2.tar.gz
+tar -xzf takt-0.3.2.tar.gz && cd takt-0.3.2
 ```
 
 **Use as a Mojo import path** (from any host project):
@@ -95,7 +95,7 @@ Requires stable Mojo 1.0 (`pixi` env from this repo, or sibling Fala `.pixi`).
 The run scripts pin, fetch, and patch the gitignored EmberJson dependency used
 only at the JSON process boundary.
 
-Release notes & archives: https://github.com/mikolaj92/takt/releases/tag/v0.3.1
+Release notes & archives: https://github.com/mikolaj92/takt/releases/tag/v0.3.2
 
 ### Optional Python binding
 
