@@ -1,4 +1,4 @@
-# Python tooling (metadata-only package; no product runtime)
+# Python tooling for the optional product binding
 __pycache__/
 *.py[oc]
 build/
@@ -9,7 +9,6 @@ wheels/
 .pytest_cache/
 .ruff_cache/
 .python-version
-uv.lock
 *.tar.gz
 
 # Mojo / pixi
