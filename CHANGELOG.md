@@ -2,6 +2,9 @@
 
 ## 0.3.2
 
+- Treat `[project].version` in `pyproject.toml` as the canonical product version;
+  remaining stamps (pixi, Mojo, Python, fala-package, README clone/tag archive)
+  are checked against it instead of a hardcoded release literal.
 - Serialize EmberJson setup and native compilation across threads and processes.
 - Recheck native cache state under the shared lock, build to a unique temporary
   path, and publish complete shared libraries atomically.
