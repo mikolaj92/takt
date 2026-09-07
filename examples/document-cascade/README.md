@@ -2,6 +2,8 @@
 
 Models a **document → section → paragraph** plant. Node `value` is a host-supplied
 aberration proxy (any evaluator may produce it — LLM rubric, heuristic, human).
+Canonical model: [docs/CONCEPTUAL_MODEL.md](../../docs/CONCEPTUAL_MODEL.md).
+JSON contract: [docs/FALA_INTEGRATION.md](../../docs/FALA_INTEGRATION.md).
 
 Takt has **no document parser**. The host builds `plant_nodes` (or uses
 `make_document_plant` in Mojo) and runs the cascade.

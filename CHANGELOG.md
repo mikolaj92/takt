@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Canonical conceptual model lives only in `docs/CONCEPTUAL_MODEL.md`; Fala/JSON
+  contract lives only in `docs/FALA_INTEGRATION.md`. README and example sketches
+  link those files instead of duplicating one-job, boundaries, or JSON schema.
+
 ## 0.3.2
 
 - Treat `[project].version` in `pyproject.toml` as the canonical product version;

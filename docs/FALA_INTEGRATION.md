@@ -1,18 +1,21 @@
 # Fala integration (optional)
 
 Takt does **not** depend on Fala. Fala can call Takt as a **subprocess / JSON
-cascade step**.
+cascade step**. Conceptual model (one job, tact loop, fusion, host/inside
+boundaries): [CONCEPTUAL_MODEL.md](CONCEPTUAL_MODEL.md). This file is the
+canonical JSON / effector contract; do not copy the examples below into README
+or `examples/*/README.md`.
 
 Fala (or any host) owns:
 
-- scheduling and process lifecycle  
-- building the plant from domain sources (document, PR, sensors, …)  
-- optional pre-fusion of detectors (e.g. via **Splot**)  
-- journals / persistence  
+- scheduling and process lifecycle
+- building the plant from domain sources (document, PR, sensors, …)
+- optional pre-fusion of detectors (e.g. via **Splot**)
+- journals / persistence
 
 Takt only runs cascade evaluate / multi-tact run under layer homeostats. JSON
 is a process-boundary format parsed with EmberJson; the cascade core itself uses
-typed Mojo structures.
+typed Mojo structures. JSON is confined to `adapters_fala`.
 
 ## Mapping
 
