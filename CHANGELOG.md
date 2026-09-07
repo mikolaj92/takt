@@ -5,6 +5,8 @@
 - Canonical conceptual model lives only in `docs/CONCEPTUAL_MODEL.md`; Fala/JSON
   contract lives only in `docs/FALA_INTEGRATION.md`. README and example sketches
   link those files instead of duplicating one-job, boundaries, or JSON schema.
+- One POSIX helper (`tools/lib/mojo_env.sh`) discovers the Mojo toolchain for
+  `mojo_run.sh` and `takt_step.sh`; EmberJson setup takes a cross-process flock.
 
 ## 0.3.2
 
