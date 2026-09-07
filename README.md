@@ -2,6 +2,8 @@
 
 **Version 0.3.2** — Mojo hierarchical cascade engine + optional thin Python binding.
 
+Canonical product version is `[project].version` in `pyproject.toml`; other stamps are checked against it.
+
 **Takt is a Mojo library.** The engine lives in `mojo/takt/`. An optional
 in-process Python host API (`python/takt`) wraps the same cascade step;
 `tools/takt_step.sh` stays the official Fala subprocess contract. No dual engine.
