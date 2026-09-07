@@ -8,35 +8,10 @@ Canonical product version is `[project].version` in `pyproject.toml`; other stam
 in-process Python host API (`python/takt`) wraps the same cascade step;
 `tools/takt_step.sh` stays the official Fala subprocess contract. No dual engine.
 
-## One job
-
-> **Stabilize hierarchical state, tact by tact — descending constraints, ascending
-> telemetry, fail-closed when entropy cannot be reduced.**
-
-```text
-  plant node (DFS tact)
-        │
-        ▼
-  raw signals (wave + detectors + node value)
-        │
-        ▼
-  fusion → ErrorSignal (aberration, confidence, residual)
-        │
-        ▼
-  homeostat → Actuation | SafetyInterlock | stable
-        │
-        ▼
-  ascending Wave (+ child layers when present)
-```
-
-Works the same over:
-
-- document → section → paragraph  
-- PR → file → hunk  
-- any host-built numeric plant  
-
-Takt does **not** parse documents or git. The host builds the plant and maps
-actuations back to the world.
+Canonical conceptual model (one job, tact loop, fusion, host/inside
+boundaries): [docs/CONCEPTUAL_MODEL.md](docs/CONCEPTUAL_MODEL.md).
+Fala / JSON subprocess contract:
+[docs/FALA_INTEGRATION.md](docs/FALA_INTEGRATION.md).
 
 ## Layout
 
@@ -142,28 +117,6 @@ export TAKT_REQUEST_PATH=examples/fixtures/cascade_evaluate.request.json
 
 Success tokens: `takt … smoke ok`, JSON `"ok":true`.
 
-## Core abstractions
-
-| Name | Role |
-| --- | --- |
-| `TreeNode` / `MathTreePlant` | Hierarchical plant; `sequential_scan` = clock |
-| `ProfilHomeostatyczny` | Layer tolerances, entropy / confidence gates |
-| `SplotFusionUnit` | Local fusion (disagreement-aware fallback) |
-| `CascadeRegulator` | One layer: collect → fuse → act / interlock |
-| `TaktSequencer` | Multi-tact driver over plant + layer chain |
-| `cascade_step` | Host JSON boundary (Fala / CLI), parsed by EmberJson |
-
-## Fusion (local)
-
-- Empty raw list → aberration `0`, confidence `1`, residual `0`, reducer `empty`.  
-- Agreeing signals → weighted-mean aberration, min confidence, residual ≥ `0.3`.  
-- High spread → `fallback_disagreement`.  
-- Opposing signs → `fallback_conflict`, low confidence, residual ≥ `0.85` (fail-closed).  
-
-Optional **Splot** remains a separate organ the **host** may call before filling
-`raw_signals` / node values — takt core never imports Splot. JSON is likewise
-confined to `adapters_fala`; the cascade core operates on typed Mojo structures.
-
 ## Examples
 
 | Path | What |
@@ -174,19 +127,10 @@ confined to `adapters_fala`; the cascade core operates on typed Mojo structures.
 | `examples/multi-organ/` | Fala + Splot + Takt composition |
 | `examples/fixtures/*.json` | Request payloads for `takt_step.sh` |
 
-## Boundaries (hard)
-
-| Outside Takt (host) | Inside Takt |
-| --- | --- |
-| Parsing docs / diffs / SDS | Numeric plant + DFS scan |
-| LLMs, linters, sensors | Fusion of already-produced signals |
-| Fala journals / scheduling | Evaluate / run envelope |
-| Product UI | Actuation & interlock records |
-
 ## Related
 
-- [fala](https://github.com/mikolaj92/Fala) — optional host / journal / effector runner  
-- [splot](https://github.com/mikolaj92/splot) — optional multi-stream fusion organ  
+- [fala](https://github.com/mikolaj92/Fala) — optional host / journal / effector runner
+- [splot](https://github.com/mikolaj92/splot) — optional multi-stream fusion organ
 
 ## License
 

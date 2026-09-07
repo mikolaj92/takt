@@ -1,6 +1,8 @@
 # Multi-organ composition (Fala + Splot + Takt)
 
-These three organs stay **separate processes / libraries**:
+These three organs stay **separate processes / libraries**. Canonical cascade
+model: [docs/CONCEPTUAL_MODEL.md](../../docs/CONCEPTUAL_MODEL.md). JSON /
+effector contract: [docs/FALA_INTEGRATION.md](../../docs/FALA_INTEGRATION.md).
 
 | Organ | Job |
 | --- | --- |
@@ -28,13 +30,6 @@ These three organs stay **separate processes / libraries**:
               Fala journals + domain effectors (comments, gates, …)
 ```
 
-## What lives where
-
-- **Plant construction** (parse markdown, git diff, SDS) — host / domain kit, not takt.
-- **Detector scores** — host evaluators; optionally **Splot** reduces them per node.
-- **Layer tolerances / fail-closed** — Takt `ProfilHomeostatyczny`.
-- **Persistence / multi-step workflows** — Fala.
-
 ## Local proofs (sibling checkouts)
 
 ```bash
@@ -48,7 +43,7 @@ cd ../Splot && SPLOT_REQUEST_PATH=examples/fixtures/player_camera_director.reque
 cd ../Fala && mise exec -- pixi run splot-integration
 ```
 
-Takt v0.3 ships the **effector side** (`tools/takt_step.sh`) plus an optional
-thin `python/takt` binding over the same step. A Fala
-`domain_packs/takt` vocabulary pack can live in the Fala repo later (same pattern
-as `domain_packs/splot`) without coupling core takt to Fala types.
+Takt ships the **effector side** (`tools/takt_step.sh`) plus an optional thin
+`python/takt` binding over the same step. A Fala `domain_packs/takt` vocabulary
+pack can live in the Fala repo later (same pattern as `domain_packs/splot`)
+without coupling core takt to Fala types.

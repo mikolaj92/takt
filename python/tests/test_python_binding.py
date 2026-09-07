@@ -106,3 +106,82 @@ def test_product_stamps_are_030_not_leftover_mojo_only_020() -> None:
 
     assert (ROOT / "python" / "takt" / "api.py").is_file()
     assert not (ROOT / "takt-0.2.0.tar.gz").exists()
+
+
+def _repo_markdown() -> list[Path]:
+    skip = {".git", ".lokay", ".pixi", "vendor", ".venv", "__pycache__", ".pytest_cache"}
+    files: list[Path] = []
+    for path in ROOT.rglob("*.md"):
+        if any(part in skip for part in path.parts):
+            continue
+        files.append(path)
+    return files
+
+
+def test_docs_single_canonical_path() -> None:
+    """#44: one-job / boundaries / Fala JSON live in docs/, not README or examples."""
+    conceptual = (ROOT / "docs" / "CONCEPTUAL_MODEL.md").read_text(encoding="utf-8")
+    fala = (ROOT / "docs" / "FALA_INTEGRATION.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    fala_ex = (ROOT / "examples" / "fala-integration" / "README.md").read_text(
+        encoding="utf-8"
+    )
+    multi_ex = (ROOT / "examples" / "multi-organ" / "README.md").read_text(
+        encoding="utf-8"
+    )
+
+    one_job = (
+        "Stabilize hierarchical state, tact by tact, under descending constraints and"
+    )
+    stale_one_job = (
+        "Stabilize hierarchical state, tact by tact — descending constraints"
+    )
+    boundaries = "| Outside Takt (host) | Inside Takt |"
+    json_fence = re.compile(r"```json\b.*?```", re.DOTALL | re.IGNORECASE)
+
+    assert "## One job" in conceptual
+    assert one_job in conceptual
+    assert stale_one_job not in conceptual
+    assert boundaries in conceptual
+    assert "## Fusion (local)" in conceptual
+    assert "## Core abstractions" in conceptual
+
+    assert "docs/CONCEPTUAL_MODEL.md" in readme
+    assert "docs/FALA_INTEGRATION.md" in readme
+    assert "## Layout" in readme
+    assert "Get Takt" in readme
+    assert "## Quick proof" in readme
+    assert "## One job" not in readme
+    assert one_job not in readme
+    assert stale_one_job not in readme
+    assert boundaries not in readme
+    assert "## Fusion (local)" not in readme
+    assert "## Boundaries" not in readme
+
+    for path, text in (
+        (ROOT / "README.md", readme),
+        (ROOT / "examples" / "fala-integration" / "README.md", fala_ex),
+        (ROOT / "examples" / "multi-organ" / "README.md", multi_ex),
+    ):
+        assert json_fence.search(text) is None, f"{path} copies JSON schema"
+
+    assert "docs/FALA_INTEGRATION.md" in fala_ex
+    assert "docs/CONCEPTUAL_MODEL.md" in fala_ex
+    assert "docs/FALA_INTEGRATION.md" in multi_ex
+    assert "docs/CONCEPTUAL_MODEL.md" in multi_ex
+
+    assert '"mode": "evaluate"' in fala
+    assert "TAKT_REQUEST_PATH" in fala
+    assert "FALA_EFFECTOR_INPUT_DIR" in fala
+    assert "plant_nodes" in fala
+    assert "raw_signals" in fala
+
+    for path in _repo_markdown():
+        text = path.read_text(encoding="utf-8")
+        rel = path.relative_to(ROOT)
+        if path.name != "CONCEPTUAL_MODEL.md":
+            assert one_job not in text, f"one-job quote leaked into {rel}"
+            assert stale_one_job not in text, f"stale one-job leaked into {rel}"
+            assert boundaries not in text, f"boundaries table leaked into {rel}"
+        if path.name != "FALA_INTEGRATION.md":
+            assert json_fence.search(text) is None, f"JSON schema fence in {rel}"

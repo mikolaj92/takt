@@ -1,7 +1,9 @@
 # Code / PR cascade example
 
 Models a **pull_request → file → hunk** plant — the same cascade core as
-documents, different `kind` labels only.
+documents, different `kind` labels only. Canonical model:
+[docs/CONCEPTUAL_MODEL.md](../../docs/CONCEPTUAL_MODEL.md). JSON contract:
+[docs/FALA_INTEGRATION.md](../../docs/FALA_INTEGRATION.md).
 
 ```bash
 # Single-hunk evaluate (actuation outside tolerance)
