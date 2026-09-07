@@ -1,7 +1,14 @@
 #!/bin/sh
+# POSIX /bin/sh on purpose: python/takt/_build.py invokes this with `sh`.
+# Clone/checkout/apply run under takt_ensure_flock so parallel mojo_run.sh /
+# takt_step.sh cannot race on vendor/EmberJson (Python side is #36).
 set -eu
 
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+# shellcheck disable=SC1091
+. "$root/tools/lib/mojo_env.sh"
+takt_ensure_flock "$root/vendor/.emberjson.setup.lock" "$0" "$@" || exit $?
+
 destination="$root/vendor/EmberJson"
 revision=951f4ef28d0c2748a30b2c5e43e139411ccca5ef
 patch="$root/patches/emberjson-mojo-1.0.patch"
