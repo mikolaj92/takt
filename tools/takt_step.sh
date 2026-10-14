@@ -5,6 +5,9 @@
 # re-list pixi candidates here.
 # Expects Fala effector env (FALA_EFFECTOR_*) or TAKT_REQUEST_PATH.
 set -eu
+if [ -n "${FALA_EFFECTOR_OUTPUT_DIR:-}" ]; then
+  rm -f -- "$FALA_EFFECTOR_OUTPUT_DIR/result.json"
+fi
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 # shellcheck disable=SC1091
 . "$root/tools/lib/mojo_env.sh"
