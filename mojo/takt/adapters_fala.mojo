@@ -299,8 +299,13 @@ def cascade_step(input_json: String) raises -> String:
         )
 
     var nodes = plant.sequential_scan()
+    if len(nodes) != 1:
+        raise Error("takt: evaluate requires exactly one plant node")
     var node = nodes[0].copy()
     var raw = _parse_raw(root, node.id)
+    for i in range(len(raw)):
+        if raw[i].node_id != node.id:
+            raise Error("takt: raw_signals node_id must match the evaluated node")
     if len(raw) > 0:
         for layer_index in range(len(chain.layers)):
             var regulator = chain.layers[layer_index].copy()

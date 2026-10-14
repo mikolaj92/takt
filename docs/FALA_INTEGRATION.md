@@ -30,6 +30,11 @@ typed Mojo structures. JSON is confined to `adapters_fala`.
 
 ### Evaluate one tact
 
+`mode` defaults to `evaluate`, which requires exactly one node after DFS scan.
+Empty or omitted `plant_nodes` keeps the single-node fallback.
+Omitted signal `node_id` defaults to the evaluated node; explicit IDs are preserved.
+Any mismatched signal ID rejects the entire evaluation before signal injection.
+
 ```json
 {
   "mode": "evaluate",
