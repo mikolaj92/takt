@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          run-install: false
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.12'
+      - run: uv sync --frozen --all-extras
+      - run: pixi install --locked
+      - run: pixi run core-smoke
+      - run: uv run --frozen pytest
+      - run: git diff --check
