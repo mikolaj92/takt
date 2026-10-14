@@ -11,6 +11,9 @@ wheels/
 .python-version
 *.tar.gz
 
+# Lokay working artifacts
+.lokay/
+
 # Mojo / pixi
 .pixi/
 vendor/
