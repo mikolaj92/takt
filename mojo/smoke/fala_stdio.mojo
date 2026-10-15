@@ -100,4 +100,19 @@ def main() raises:
         rejected_mode = True
     _check(rejected_mode, "unknown mode rejected")
 
+    for mode in ["evaluate", "run"]:
+        for incoming in ["[]", "\"invalid\"", "1", "true"]:
+            var rejected_constraints = False
+            try:
+                _ = cascade_step(
+                    "{\"mode\":\"" + mode + "\",\"incoming_constraints\":" + incoming + "}"
+                )
+            except err:
+                rejected_constraints = True
+                _check(
+                    String(err) == "takt: incoming_constraints must be a JSON object",
+                    "invalid incoming_constraints reports documented error",
+                )
+            _check(rejected_constraints, "non-object incoming_constraints rejected")
+
     print("takt fala stdio smoke ok")
