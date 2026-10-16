@@ -30,19 +30,10 @@ def main() raises:
     else:
         var input_dir = getenv("FALA_EFFECTOR_INPUT_DIR")
         if input_dir.byte_length() > 0:
-            var request_file = input_dir + "/request.json"
-            if Path(request_file).exists():
-                path = request_file
-        if path.byte_length() == 0:
-            var manifest = getenv("FALA_EFFECTOR_MANIFEST")
-            if manifest.byte_length() > 0 and Path(manifest).exists():
-                # Prefer sibling request.json next to manifest layout
-                var req = "examples/fixtures/cascade_evaluate.request.json"
-                if Path(req).exists():
-                    path = req
+            path = input_dir + "/request.json"
 
     if path.byte_length() == 0:
-        path = "examples/fixtures/cascade_evaluate.request.json"
+        raise Error("takt step: missing input: set TAKT_REQUEST_PATH or FALA_EFFECTOR_INPUT_DIR")
 
     if not Path(path).exists():
         raise Error("takt step: request not found: " + path)

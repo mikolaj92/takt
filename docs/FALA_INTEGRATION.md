@@ -94,6 +94,8 @@ Any mismatched signal ID rejects the entire evaluation before signal injection.
 
 ## Effector env
 
+Explicit input via `TAKT_REQUEST_PATH` or `FALA_EFFECTOR_INPUT_DIR` is required; without it, the process returns an error.
+
 | Env | Role |
 | --- | --- |
 | `TAKT_REQUEST_PATH` | Path to request JSON (local) |
