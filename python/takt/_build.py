@@ -27,7 +27,7 @@ def repo_root() -> Path:
     env = os.environ.get("TAKT_HOME")
     if env:
         return Path(env).expanduser().resolve()
-    for candidate in (_PACKAGE_DIR.parents[2], _PACKAGE_DIR.parent, Path.cwd()):
+    for candidate in (_PACKAGE_DIR, _PACKAGE_DIR.parents[1]):
         if (candidate / "mojo" / "takt").is_dir():
             return candidate.resolve()
     raise RuntimeError(
