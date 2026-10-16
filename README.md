@@ -76,26 +76,23 @@ Release notes & archives: https://github.com/mikolaj92/takt/releases/tag/v0.3.2
 
 ### Optional Python binding
 
-Mojo remains the product engine. An optional in-process host API:
+The wheel includes the Mojo engine sources, tools, and EmberJson patch.
+Mojo is still required on PATH (Pixi / Modular). Set `TAKT_HOME` only to
+explicitly select another checkout.
+
+For development:
 
 ```bash
-export TAKT_HOME=/path/to/takt   # if not developing from the checkout
-# Mojo toolchain on PATH (pixi / Modular)
 uv sync --extra dev
 uv run pytest
 ```
 
-`[project.optional-dependencies] dev` is an extra — use `uv sync --extra dev`
-(not `uv sync --dev`). `uv sync --group dev` also works via `[dependency-groups]`.
-
 ```python
 import takt
 result = takt.cascade_step({"mode": "evaluate", "plant_nodes": [...], "layers": [...]})
-# same JSON as tools/takt_step.sh
 ```
 
-Requires Mojo on PATH (or sibling Fala pixi). `tools/takt_step.sh` remains the
-Fala subprocess contract. No dual engine.
+`tools/takt_step.sh` remains the Fala subprocess contract. No dual engine.
 
 ## Quick proof
 
