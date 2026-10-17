@@ -28,6 +28,14 @@ typed Mojo structures. JSON is confined to `adapters_fala`.
 
 ## Input (JSON)
 
+Both `evaluate` and `run` accept an optional `incoming_constraints` object
+with optional numeric fields `dev` and `policy`. `incoming_constraints.dev`
+overrides `constraint_dev`. An omitted or `null` `incoming_constraints` adds no
+constraints; `constraint_dev` still applies if present. Any other non-object
+value raises `takt: incoming_constraints must be a JSON object`.
+
+Each `layers[]` entry accepts a numeric `cutoff`, defaulting to `0.01`.
+
 ### Evaluate one tact
 
 `mode` defaults to `evaluate`, which requires exactly one node after DFS scan.
@@ -42,7 +50,7 @@ Any mismatched signal ID rejects the entire evaluation before signal injection.
     {"id": "hunk:0", "value": 0.8, "has_children": false, "layer": 0, "kind": "hunk"}
   ],
   "layers": [
-    {"layer": 0, "tolerance": 0.1, "min_confidence": 0.5, "entropy_threshold": 0.35}
+    {"layer": 0, "tolerance": 0.1, "min_confidence": 0.5, "entropy_threshold": 0.35, "cutoff": 0.01}
   ],
   "now": "2026-01-01T12:00:00Z"
 }
@@ -56,7 +64,8 @@ Any mismatched signal ID rejects the entire evaluation before signal injection.
   "steps": 4,
   "plant_nodes": [ "… DFS list …" ],
   "layers": [ {"layer": 0, "tolerance": 0.1}, {"layer": 1, "tolerance": 0.2} ],
-  "constraint_dev": 0.01
+  "constraint_dev": 0.01,
+  "incoming_constraints": {"dev": 0.02, "policy": 0.03}
 }
 ```
 
