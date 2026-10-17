@@ -36,6 +36,11 @@ def test_cascade_step_evaluate_actuation() -> None:
     assert result["outcome"] == "actuation"
     assert result["node_id"] == "hunk:0"
 
+    result = takt.cascade_step(json.loads(INTERLOCK.read_text(encoding="utf-8")))
+    assert result["ok"] is True
+    assert result["outcome"] == "interlock"
+    assert result["signals"]["actuation"] is None
+
 
 def test_cascade_step_json_string() -> None:
     import takt
