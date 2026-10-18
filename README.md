@@ -94,8 +94,7 @@ result = takt.cascade_step({"mode": "evaluate", "plant_nodes": [...], "layers": 
 # same JSON as tools/takt_step.sh
 ```
 
-Requires Mojo on PATH (or sibling Fala pixi). `tools/takt_step.sh` remains the
-Fala subprocess contract. No dual engine.
+Requires Mojo on PATH (or sibling Fala pixi). `tools/takt_step.sh` remains the Fala subprocess contract. No dual engine.
 
 ## Quick proof
 
