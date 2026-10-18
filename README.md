@@ -85,9 +85,6 @@ uv sync --extra dev
 uv run pytest
 ```
 
-`[project.optional-dependencies] dev` is an extra — use `uv sync --extra dev`
-(not `uv sync --dev`). `uv sync --group dev` also works via `[dependency-groups]`.
-
 ```python
 import takt
 result = takt.cascade_step({"mode": "evaluate", "plant_nodes": [...], "layers": [...]})
