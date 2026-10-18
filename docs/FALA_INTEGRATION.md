@@ -1,10 +1,8 @@
 # Fala integration (optional)
 
-Takt does **not** depend on Fala. Fala can call Takt as a **subprocess / JSON
-cascade step**. Conceptual model (one job, tact loop, fusion, host/inside
-boundaries): [CONCEPTUAL_MODEL.md](CONCEPTUAL_MODEL.md). This file is the
-canonical JSON / effector contract; do not copy the examples below into README
-or `examples/*/README.md`.
+Fala optionally calls Takt as a **subprocess / JSON cascade step**.
+See [CONCEPTUAL_MODEL.md](CONCEPTUAL_MODEL.md) for host/core boundaries.
+This is the canonical JSON / effector contract; do not copy examples into README or `examples/*/README.md`.
 
 Fala (or any host) owns:
 
@@ -13,9 +11,7 @@ Fala (or any host) owns:
 - optional pre-fusion of detectors (e.g. via **Splot**)
 - journals / persistence
 
-Takt only runs cascade evaluate / multi-tact run under layer homeostats. JSON
-is a process-boundary format parsed with EmberJson; the cascade core itself uses
-typed Mojo structures. JSON is confined to `adapters_fala`.
+`adapters_fala` parses JSON with EmberJson; the cascade core uses typed Mojo structures.
 
 ## Mapping
 
@@ -27,6 +23,12 @@ typed Mojo structures. JSON is confined to `adapters_fala`.
 | Domain packs | vocabulary only (optional, lives in Fala repo) |
 
 ## Input (JSON)
+
+Both modes accept an optional `incoming_constraints` object with optional numeric `dev` / `policy`.
+`incoming_constraints.dev` overrides `constraint_dev`; omission or `null` preserves `constraint_dev` without adding constraints.
+Other non-object values raise `takt: incoming_constraints must be a JSON object`.
+Each `layers[]` entry accepts numeric `cutoff` (default `0.01`).
+Wrong numeric types, including `null`, use defaults: `constraint_dev`, `dev` and `policy` use `0.0`; `cutoff` uses `0.01`.
 
 ### Evaluate one tact
 
@@ -42,7 +44,7 @@ Any mismatched signal ID rejects the entire evaluation before signal injection.
     {"id": "hunk:0", "value": 0.8, "has_children": false, "layer": 0, "kind": "hunk"}
   ],
   "layers": [
-    {"layer": 0, "tolerance": 0.1, "min_confidence": 0.5, "entropy_threshold": 0.35}
+    {"layer": 0, "tolerance": 0.1, "min_confidence": 0.5, "entropy_threshold": 0.35, "cutoff": 0.01}
   ],
   "now": "2026-01-01T12:00:00Z"
 }
@@ -54,9 +56,10 @@ Any mismatched signal ID rejects the entire evaluation before signal injection.
 {
   "mode": "run",
   "steps": 4,
-  "plant_nodes": [ "… DFS list …" ],
+  "plant_nodes": [{"id": "node", "value": 0.8, "has_children": false, "layer": 0}],
   "layers": [ {"layer": 0, "tolerance": 0.1}, {"layer": 1, "tolerance": 0.2} ],
-  "constraint_dev": 0.01
+  "constraint_dev": 0.01,
+  "incoming_constraints": {"dev": 0.02, "policy": 0.03}
 }
 ```
 
@@ -78,10 +81,7 @@ Any mismatched signal ID rejects the entire evaluation before signal injection.
 
 ```json
 {
-  "ok": true,
-  "mode": "evaluate",
-  "outcome": "actuation",
-  "node_id": "hunk:0",
+  "ok": true, "mode": "evaluate", "outcome": "actuation", "node_id": "hunk:0",
   "signals": {
     "error": {"aberration": 0.8, "confidence": 0.8, "residual_entropy": 0.3, "reducer": "fallback"},
     "actuation": {"node_id": "hunk:0", "command": "correct_aberration"},
