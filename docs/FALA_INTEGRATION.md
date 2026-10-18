@@ -1,10 +1,8 @@
 # Fala integration (optional)
 
-Takt does **not** depend on Fala. Fala can call Takt as a **subprocess / JSON
-cascade step**. Conceptual model (one job, tact loop, fusion, host/inside
-boundaries): [CONCEPTUAL_MODEL.md](CONCEPTUAL_MODEL.md). This file is the
-canonical JSON / effector contract; do not copy the examples below into README
-or `examples/*/README.md`.
+Fala optionally calls Takt as a **subprocess / JSON cascade step**.
+See [CONCEPTUAL_MODEL.md](CONCEPTUAL_MODEL.md) for host/core boundaries.
+This is the canonical JSON / effector contract; do not copy examples into README or `examples/*/README.md`.
 
 Fala (or any host) owns:
 
@@ -13,8 +11,7 @@ Fala (or any host) owns:
 - optional pre-fusion of detectors (e.g. via **Splot**)
 - journals / persistence
 
-`adapters_fala` parses process-boundary JSON with EmberJson; the cascade core
-uses typed Mojo structures.
+`adapters_fala` parses JSON with EmberJson; the cascade core uses typed Mojo structures.
 
 ## Mapping
 
@@ -27,15 +24,11 @@ uses typed Mojo structures.
 
 ## Input (JSON)
 
-Both `evaluate` and `run` accept an optional `incoming_constraints` object
-with optional numeric fields `dev` and `policy`. `incoming_constraints.dev`
-overrides `constraint_dev`. An omitted or `null` `incoming_constraints` adds no
-constraints; `constraint_dev` still applies if present. Any other non-object
-value raises `takt: incoming_constraints must be a JSON object`.
-
-Each `layers[]` entry accepts a numeric `cutoff`, defaulting to `0.01`.
-Wrong numeric types, including `null`, use defaults: `constraint_dev`, `dev`
-and `policy` use `0.0`; `cutoff` uses `0.01`. Numeric types are not strictly validated.
+Both modes accept an optional `incoming_constraints` object with optional numeric `dev` / `policy`.
+`incoming_constraints.dev` overrides `constraint_dev`; omission or `null` preserves `constraint_dev` without adding constraints.
+Other non-object values raise `takt: incoming_constraints must be a JSON object`.
+Each `layers[]` entry accepts numeric `cutoff` (default `0.01`).
+Wrong numeric types, including `null`, use defaults: `constraint_dev`, `dev` and `policy` use `0.0`; `cutoff` uses `0.01`.
 
 ### Evaluate one tact
 
