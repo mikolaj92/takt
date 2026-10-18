@@ -1,0 +1,12 @@
+prefix=/Users/runner/miniforge3/conda-bld/bld/rattler-build_zeromq_1779124076/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libzmq
+Description: 0MQ c++ library
+Version: 4.3.5
+Libs: -L${libdir} -lzmq
+Libs.private: -lstdc++  -lpthread
+Requires.private:  krb5-gssapi libsodium
+Cflags: -I${includedir} 

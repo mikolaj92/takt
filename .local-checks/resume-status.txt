@@ -1,0 +1,9 @@
+ M docs/CONCEPTUAL_MODEL.md
+ M docs/FALA_INTEGRATION.md
+ M mojo/smoke/cascade_sequencer.mojo
+ M mojo/smoke/fala_stdio.mojo
+ M mojo/smoke/regulator_evaluate.mojo
+ M mojo/takt/adapters_fala.mojo
+ M mojo/takt/plant.mojo
+ M mojo/takt/regulator.mojo
+?? .local-checks/

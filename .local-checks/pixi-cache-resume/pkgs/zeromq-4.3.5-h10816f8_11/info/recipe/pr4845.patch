@@ -1,0 +1,24 @@
+From fdda3152c2f99b0bc35cf74c701f70cb12d96b08 Mon Sep 17 00:00:00 2001
+From: Min RK <benjaminrk@gmail.com>
+Date: Mon, 2 Mar 2026 09:34:17 -0800
+Subject: [PATCH] TST: bind bsd socket to loopback instead of all interfaces
+
+on mac, INADDR_ANY is not aconnectable host,
+leading to EHOSTUNREACH when passed to `sendto`
+---
+ tests/testutil.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests/testutil.cpp b/tests/testutil.cpp
+index 6f21e8f608..c5376953dc 100644
+--- a/tests/testutil.cpp
++++ b/tests/testutil.cpp
+@@ -331,7 +331,7 @@ sockaddr_in bind_bsd_socket (int socket_)
+     struct sockaddr_in saddr;
+     memset (&saddr, 0, sizeof (saddr));
+     saddr.sin_family = AF_INET;
+-    saddr.sin_addr.s_addr = INADDR_ANY;
++    saddr.sin_addr.s_addr = htonl (INADDR_LOOPBACK);
+ #if !defined(_WIN32_WINNT) || (_WIN32_WINNT >= 0x0600)
+     saddr.sin_port = 0;
+ #else
