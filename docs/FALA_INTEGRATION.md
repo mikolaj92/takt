@@ -13,9 +13,8 @@ Fala (or any host) owns:
 - optional pre-fusion of detectors (e.g. via **Splot**)
 - journals / persistence
 
-Takt only runs cascade evaluate / multi-tact run under layer homeostats. JSON
-is a process-boundary format parsed with EmberJson; the cascade core itself uses
-typed Mojo structures. JSON is confined to `adapters_fala`.
+`adapters_fala` parses process-boundary JSON with EmberJson; the cascade core
+uses typed Mojo structures.
 
 ## Mapping
 
@@ -35,6 +34,8 @@ constraints; `constraint_dev` still applies if present. Any other non-object
 value raises `takt: incoming_constraints must be a JSON object`.
 
 Each `layers[]` entry accepts a numeric `cutoff`, defaulting to `0.01`.
+Wrong numeric types, including `null`, use defaults: `constraint_dev`, `dev`
+and `policy` use `0.0`; `cutoff` uses `0.01`. Numeric types are not strictly validated.
 
 ### Evaluate one tact
 
@@ -62,7 +63,7 @@ Any mismatched signal ID rejects the entire evaluation before signal injection.
 {
   "mode": "run",
   "steps": 4,
-  "plant_nodes": [ "… DFS list …" ],
+  "plant_nodes": [{"id": "node", "value": 0.8, "has_children": false, "layer": 0}],
   "layers": [ {"layer": 0, "tolerance": 0.1}, {"layer": 1, "tolerance": 0.2} ],
   "constraint_dev": 0.01,
   "incoming_constraints": {"dev": 0.02, "policy": 0.03}
@@ -87,10 +88,7 @@ Any mismatched signal ID rejects the entire evaluation before signal injection.
 
 ```json
 {
-  "ok": true,
-  "mode": "evaluate",
-  "outcome": "actuation",
-  "node_id": "hunk:0",
+  "ok": true, "mode": "evaluate", "outcome": "actuation", "node_id": "hunk:0",
   "signals": {
     "error": {"aberration": 0.8, "confidence": 0.8, "residual_entropy": 0.3, "reducer": "fallback"},
     "actuation": {"node_id": "hunk:0", "command": "correct_aberration"},

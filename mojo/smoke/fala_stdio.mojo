@@ -57,6 +57,40 @@ def main() raises:
     _check(out_run.find("\"steps\":3") >= 0, "three steps")
     _check(out_run.find("takt.cascade_run") >= 0, "run event")
 
+    for request in [act, run]:
+        var baseline = cascade_step(request)
+        _check(baseline.find("\"ok\":true") >= 0, "baseline request accepted")
+        var prefix = String(request.removesuffix("}"))
+        for incoming in ["null", "{}"]:
+            _check(
+                run_stdio_line(prefix + ",\"incoming_constraints\":" + incoming + "}") == baseline,
+                "absent, null and empty constraints agree",
+            )
+        var winning = prefix + ",\"incoming_constraints\":{\"dev\":0.02,\"policy\":0.03}"
+        var constrained = cascade_step(winning + "}")
+        _check(constrained.find("\"ok\":true") >= 0, "numeric constraints accepted")
+        _check(
+            run_stdio_line(winning + ",\"constraint_dev\":10.0}") == constrained,
+            "incoming dev overrides legacy dev",
+        )
+        var legacy = cascade_step(prefix + ",\"constraint_dev\":0.02}")
+        for incoming in ["null", "{}"]:
+            _check(
+                run_stdio_line(prefix + ",\"constraint_dev\":0.02,\"incoming_constraints\":" + incoming + "}") == legacy,
+                "null and empty constraints preserve legacy dev",
+            )
+        for incoming in ["[]", "\"bad\"", "1", "true"]:
+            var rejected_constraints = False
+            try:
+                _ = run_stdio_line(prefix + ",\"incoming_constraints\":" + incoming + "}")
+            except err:
+                rejected_constraints = String(err) == "takt: incoming_constraints must be a JSON object"
+            _check(rejected_constraints, "invalid constraints shape rejected with expected error")
+        _check(
+            run_stdio_line(request.replace("\"tolerance\":0.1", "\"tolerance\":0.1,\"cutoff\":0.01")) == baseline,
+            "default cutoff equals explicit 0.01",
+        )
+
     # Full JSON boundary: Unicode and escaped input survive as valid JSON output.
     var unicode_request = (
         "{\"mode\":\"evaluate\",\"now\":\"2026-01-01T12:00:00Z\","
