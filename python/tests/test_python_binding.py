@@ -10,6 +10,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 EVAL = ROOT / "examples" / "fixtures" / "cascade_evaluate.request.json"
 INTERLOCK = ROOT / "examples" / "fixtures" / "cascade_interlock.request.json"
+RUN = ROOT / "examples" / "fixtures" / "cascade_run.request.json"
 
 
 def _canonical_version() -> str:
@@ -26,27 +27,26 @@ def _env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("TAKT_HOME", str(ROOT))
 
 
-def test_cascade_step_evaluate_actuation() -> None:
+@pytest.mark.parametrize("request_path", [EVAL, INTERLOCK, RUN])
+@pytest.mark.parametrize("as_json", [False, True], ids=["dict", "text"])
+def test_cascade_step_evaluate_actuation(request_path: Path, as_json: bool) -> None:
     import takt
 
-    result = takt.cascade_step(json.loads(EVAL.read_text(encoding="utf-8")))
+    payload = request_path.read_text(encoding="utf-8")
+    result = takt.cascade_step(payload if as_json else json.loads(payload))
     assert result.get("ok") is True
-    assert result.get("outcome") in {"actuation", "stable", "interlock"}
-    # high deviation plant → actuation expected for fixture value 0.8
-    assert result["outcome"] == "actuation"
-    assert result["node_id"] == "hunk:0"
-
-    result = takt.cascade_step(json.loads(INTERLOCK.read_text(encoding="utf-8")))
-    assert result["ok"] is True
-    assert result["outcome"] == "interlock"
-    assert result["signals"]["actuation"] is None
-
-
-def test_cascade_step_json_string() -> None:
-    import takt
-
-    result = takt.cascade_step(EVAL.read_text(encoding="utf-8"))
-    assert "signals" in result and "events" in result
+    if request_path == EVAL:
+        assert result.get("outcome") in {"actuation", "stable", "interlock"}
+        assert result["outcome"] == "actuation"
+        assert result["node_id"] == "hunk:0"
+        assert "signals" in result and "events" in result
+    elif request_path == INTERLOCK:
+        assert result["outcome"] == "interlock"
+        assert result["signals"]["actuation"] is None
+    else:
+        assert result["mode"] == "run"
+        assert result["steps"] == 4
+        assert len(result["results"]) == 4
 
 
 def test_product_stamps_match_canonical_pyproject_version() -> None:
