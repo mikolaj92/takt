@@ -44,8 +44,8 @@ def test_cascade_step_evaluate_actuation() -> None:
 
 @pytest.mark.parametrize(("payload", "error"), [("{not-json}", "Invalid identifier"), ("[]", "takt: request must be a JSON object"), ('{"mode":"unknown"}', "takt: mode must be evaluate or run")])
 def test_cascade_step_json_string(payload: str, error: str) -> None:
-    import takt; result = takt.cascade_step(EVAL.read_text(encoding="utf-8")); assert "signals" in result and "events" in result
-    exc = pytest.raises(Exception, takt.cascade_step, payload); assert type(exc.value) is Exception and str(exc.value) == error
+    import takt; result = takt.cascade_step(EVAL.read_text(encoding="utf-8")); assert result["ok"] is True; assert "signals" in result and "events" in result
+    exc = pytest.raises(Exception, takt.cascade_step, payload); assert type(exc.value) is Exception; assert str(exc.value) == error
 
 
 def test_product_stamps_match_canonical_pyproject_version() -> None:
