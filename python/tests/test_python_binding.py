@@ -37,16 +37,12 @@ def test_cascade_step_evaluate_actuation(request_path: Path, as_json: bool) -> N
     assert result.get("ok") is True
     if request_path == EVAL:
         assert result.get("outcome") in {"actuation", "stable", "interlock"}
-        assert result["outcome"] == "actuation"
-        assert result["node_id"] == "hunk:0"
+        assert (result["outcome"], result["node_id"]) == ("actuation", "hunk:0")
         assert "signals" in result and "events" in result
     elif request_path == INTERLOCK:
-        assert result["outcome"] == "interlock"
-        assert result["signals"]["actuation"] is None
+        assert result["outcome"] == "interlock" and result["signals"]["actuation"] is None
     else:
-        assert result["mode"] == "run"
-        assert result["steps"] == 4
-        assert len(result["results"]) == 4
+        assert (result["mode"], result["steps"], len(result["results"])) == ("run", 4, 4)
 
 
 def test_product_stamps_match_canonical_pyproject_version() -> None:
