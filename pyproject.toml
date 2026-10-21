@@ -29,7 +29,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["python/takt"]
-force-include = { "mojo" = "mojo", "tools" = "tools", "patches" = "patches" }
+force-include = { "mojo" = "takt/mojo", "tools" = "takt/tools", "patches" = "takt/patches" }
 
 [tool.hatch.build.targets.sdist]
 include = [
