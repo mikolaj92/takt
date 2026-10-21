@@ -85,17 +85,13 @@ uv sync --extra dev
 uv run pytest
 ```
 
-`[project.optional-dependencies] dev` is an extra — use `uv sync --extra dev`
-(not `uv sync --dev`). `uv sync --group dev` also works via `[dependency-groups]`.
-
 ```python
 import takt
 result = takt.cascade_step({"mode": "evaluate", "plant_nodes": [...], "layers": [...]})
 # same JSON as tools/takt_step.sh
 ```
 
-Requires Mojo on PATH (or sibling Fala pixi). `tools/takt_step.sh` remains the
-Fala subprocess contract. No dual engine.
+Requires Mojo on PATH (or sibling Fala pixi). `tools/takt_step.sh` remains the Fala subprocess contract. No dual engine.
 
 ## Quick proof
 
