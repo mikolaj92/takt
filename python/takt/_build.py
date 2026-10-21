@@ -27,9 +27,11 @@ def repo_root() -> Path:
     env = os.environ.get("TAKT_HOME")
     if env:
         return Path(env).expanduser().resolve()
-    for candidate in (_PACKAGE_DIR.parents[2], _PACKAGE_DIR.parent, Path.cwd()):
-        if (candidate / "mojo" / "takt").is_dir():
-            return candidate.resolve()
+    if (_PACKAGE_DIR / "mojo" / "takt").is_dir():
+        return _PACKAGE_DIR
+    checkout = _PACKAGE_DIR.parents[1]
+    if _PACKAGE_DIR.parent.name == "python" and (checkout / "mojo" / "takt").is_dir():
+        return checkout
     raise RuntimeError(
         "Cannot locate Takt Mojo sources. Set TAKT_HOME to the takt checkout "
         "(must contain mojo/takt)."
