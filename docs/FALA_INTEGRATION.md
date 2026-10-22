@@ -37,7 +37,7 @@ Wrong numeric types, including `null`, use defaults: `constraint_dev`, `dev` and
 Omitted signal `node_id` defaults to the evaluated node; explicit IDs are preserved. Any mismatched ID rejects evaluation before injection.
 The adapter copies `raw_signals` only into the highest regulator's one-shot `extra_raw` buffer; its next `evaluate` consumes and clears it.
 The sequencer starts at the highest regulator (last `layers[]` entry; supply layers in ascending order). A leaf (`has_children: false`) never evaluates lower regulators.
-Only evaluated regulators run fusion. Descent passes the parent's resulting `aberration` / `confidence` constraints, without reinjecting raw detectors. `cascade_descent.request.json` derives interlock from constraints alone versus actuation with former all-regulator injection; these are expected, not executed results.
+Only evaluated regulators run fusion. Descent passes the parent's resulting `aberration` / `confidence` constraints, without reinjecting raw detectors. The process assertion below checks `cascade_descent.request.json` for interlock without actuation; former all-regulator injection is expected to fail it. Execution and mutation verification remain blocked without Mojo.
 
 ```json
 {
@@ -107,5 +107,5 @@ Explicit input via `TAKT_REQUEST_PATH` or `FALA_EFFECTOR_INPUT_DIR` is required;
 
 ```bash
 ./tools/mojo_run.sh mojo/smoke/fala_stdio.mojo
-TAKT_REQUEST_PATH=examples/fixtures/cascade_descent.request.json ./tools/takt_step.sh
+TAKT_REQUEST_PATH=examples/fixtures/cascade_descent.request.json ./tools/takt_step.sh | python3 -c 'import json, sys; r = json.load(sys.stdin); assert r["ok"] is True and r["outcome"] == "interlock" and r["signals"]["interlock"] is not None and r["signals"]["actuation"] is None, r'
 ```
