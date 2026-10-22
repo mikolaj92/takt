@@ -30,16 +30,15 @@ def main() raises:
         "{"
         + "\"mode\":\"evaluate\","
         + "\"plant_nodes\":[{\"id\":\"node\",\"value\":0.0,\"has_children\":false}],"
-        + "\"layers\":[{\"layer\":0,\"tolerance\":0.1,\"min_confidence\":0.6,\"entropy_threshold\":0.35}],"
-        + "\"raw_signals\":["
-        + "{\"signal_id\":\"a\",\"deviation\":10.0,\"confidence\":0.9},"
-        + "{\"signal_id\":\"b\",\"deviation\":-10.0,\"confidence\":0.9}"
-        + "]"
+        + "\"layers\":[{\"layer\":0,\"tolerance\":0.1,\"min_confidence\":0.6,\"entropy_threshold\":0.35},{\"layer\":1,\"tolerance\":0.1,\"min_confidence\":0.6,\"entropy_threshold\":0.35}],"
+        + "\"raw_signals\":[{\"signal_id\":\"a\",\"deviation\":10.0,\"confidence\":0.9},{\"signal_id\":\"b\",\"deviation\":-10.0,\"confidence\":0.9}]"
         + "}"
     )
     var out_il = cascade_step(il)
     _check(out_il.find("\"outcome\":\"interlock\"") >= 0, "outcome interlock")
-    _check(out_il.find("actuation\":null") >= 0 or out_il.find("\"actuation\":null") >= 0, "no actuation")
+    _check(out_il.find("\"actuation\":null") >= 0, "no actuation")
+    _check(out_il.find("\"telemetry_count\":2") >= 0, "leaf: interlock and evaluation only")
+    _check(cascade_step(il.replace("\"has_children\":false", "\"has_children\":false,\"layer\":1")) == out_il, "leaf metadata does not change adapter result")
 
     # Multi-tact run
     var run = (
