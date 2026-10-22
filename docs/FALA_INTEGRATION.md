@@ -35,9 +35,9 @@ Wrong numeric types, including `null`, use defaults: `constraint_dev`, `dev` and
 `mode` defaults to `evaluate`, which requires exactly one node after DFS scan; empty or omitted `plant_nodes` keeps the single-node fallback.
 `plant_nodes[].layer` (`TreeNode.layer`, default `0`) remains accepted as metadata, not a regulator selector.
 Omitted signal `node_id` defaults to the evaluated node; explicit IDs are preserved. Any mismatched ID rejects evaluation before injection.
-The adapter copies `raw_signals` into every regulator's `extra_raw`; each buffer is consumed and cleared only by that regulator's next `evaluate`.
+The adapter copies `raw_signals` only into the highest regulator's one-shot `extra_raw` buffer; its next `evaluate` consumes and clears it.
 The sequencer starts at the highest regulator (last `layers[]` entry; supply layers in ascending order). A leaf (`has_children: false`) never evaluates lower regulators.
-Only evaluated regulators run fusion. Descent passes the parent's resulting `aberration` / `confidence` constraints, not its raw detector list.
+Only evaluated regulators run fusion. Descent passes the parent's resulting `aberration` / `confidence` constraints, without reinjecting raw detectors. `cascade_descent.request.json` derives interlock from constraints alone versus actuation with former all-regulator injection; these are expected, not executed results.
 
 ```json
 {
@@ -107,5 +107,5 @@ Explicit input via `TAKT_REQUEST_PATH` or `FALA_EFFECTOR_INPUT_DIR` is required;
 
 ```bash
 ./tools/mojo_run.sh mojo/smoke/fala_stdio.mojo
-TAKT_REQUEST_PATH=examples/fixtures/cascade_evaluate.request.json ./tools/takt_step.sh
+TAKT_REQUEST_PATH=examples/fixtures/cascade_descent.request.json ./tools/takt_step.sh
 ```
