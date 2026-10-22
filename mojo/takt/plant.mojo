@@ -1,8 +1,8 @@
 """Controlled plant: hierarchical state + sequential scan (one node = one tact).
 
 Nodes are stored flat in DFS order (Mojo cannot embed List[TreeNode] recursively).
-Each node may carry parent_id, layer, and kind so hosts can model documents,
-code trees, and multi-layer cascades without domain parsers inside takt.
+Each node may carry parent_id, layer, and kind as host metadata.
+TreeNode.layer does not select a regulator; evaluation starts at the chain root.
 """
 
 from std.collections import List
