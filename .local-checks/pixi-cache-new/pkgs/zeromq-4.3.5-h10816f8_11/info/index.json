@@ -1,0 +1,17 @@
+{
+  "arch": "arm64",
+  "build": "h10816f8_11",
+  "build_number": 11,
+  "depends": [
+    "libcxx >=19",
+    "__osx >=11.0",
+    "krb5 >=1.22.2,<1.23.0a0",
+    "libsodium >=1.0.22,<1.0.23.0a0"
+  ],
+  "license": "MPL-2.0",
+  "name": "zeromq",
+  "platform": "osx",
+  "subdir": "osx-arm64",
+  "timestamp": 1779124076307,
+  "version": "4.3.5"
+}

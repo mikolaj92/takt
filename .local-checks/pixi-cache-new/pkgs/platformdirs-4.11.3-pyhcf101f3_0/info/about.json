@@ -1,0 +1,19 @@
+{
+  "channels": [
+    "https://conda.anaconda.org/conda-forge/"
+  ],
+  "dev_url": "https://github.com/tox-dev/platformdirs",
+  "extra": {
+    "flow_run_id": "github_31797971404",
+    "recipe-maintainers": [
+      "adament",
+      "gaborbernat",
+      "bollwyvl"
+    ],
+    "remote_url": "https://github.com/conda-forge/platformdirs-feedstock",
+    "sha": "b53644db517f641f6e9c4b42fd7803be545e99e5"
+  },
+  "home": "https://pypi.org/project/platformdirs",
+  "license": "MIT",
+  "summary": "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
+}

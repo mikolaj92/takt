@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "hd8ed1ab_3",
+  "build_number": 3,
+  "depends": [
+    "cpython",
+    "python-gil"
+  ],
+  "license": "MIT",
+  "name": "_python_abi3_support",
+  "noarch": "generic",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1784221492234,
+  "version": "1.0"
+}

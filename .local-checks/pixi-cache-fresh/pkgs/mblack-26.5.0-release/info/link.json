@@ -1,0 +1,9 @@
+{
+  "noarch": {
+    "type": "python",
+    "entry_points": [
+      "mblack = mblack:patched_main"
+    ]
+  },
+  "package_metadata_version": 1
+}

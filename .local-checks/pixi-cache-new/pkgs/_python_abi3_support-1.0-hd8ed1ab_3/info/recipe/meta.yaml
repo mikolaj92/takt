@@ -1,0 +1,41 @@
+# This file created by conda-build 26.5.0
+# ------------------------------------------------
+
+package:
+  name: _python_abi3_support
+  version: '1.0'
+build:
+  noarch: generic
+  number: 3
+  string: hd8ed1ab_3
+requirements:
+  run:
+    - cpython
+    - python-gil
+  build: []
+test:
+  commands:
+    - echo "hello world!"
+about:
+  home: https://github.com/conda-forge/python-abi3-feedstock
+  summary: Support Python ABI3 packages on conda
+  description: 'python-abi3 package can be used for supporting ABI3 packages on
+
+    conda-forge. ABI3 supports building a C extension for one specific
+
+    CPython version and make it work on any later version.
+
+    (freethreading is not supported)
+
+    '
+  license: MIT
+  license_file: LICENSE.txt
+extra:
+  feedstock-name: python-abi3
+  recipe-maintainers:
+    - isuruf
+  final: true
+  copy_test_source_files: true
+  flow_run_id: github_29518116431
+  remote_url: https://github.com/conda-forge/python-abi3-feedstock
+  sha: f76311ff8e8580bd86a26f781fb4ee1d86db8a9c

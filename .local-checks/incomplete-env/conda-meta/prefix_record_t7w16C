@@ -1,0 +1,32 @@
+{
+  "build": "h4df99d1_102",
+  "build_number": 102,
+  "depends": [
+    "cpython 3.14.6.*",
+    "python_abi * *_cp314"
+  ],
+  "license": "Python-2.0",
+  "md5": "364ec4bb854ab4ca9ca4e626a55ea8da",
+  "name": "python-gil",
+  "noarch": "generic",
+  "run_exports": {},
+  "sha256": "b15fb3e5daae788ca78844ee4ee9f1a1b07911cd4e83c484d8c1ce2794c6c93b",
+  "size": 49897,
+  "subdir": "noarch",
+  "timestamp": 1786444152084,
+  "version": "3.14.6",
+  "fn": "python-gil-3.14.6-h4df99d1_102.conda",
+  "url": "https://conda.anaconda.org/conda-forge/noarch/python-gil-3.14.6-h4df99d1_102.conda",
+  "channel": "https://conda.anaconda.org/conda-forge/",
+  "extracted_package_dir": "/Users/mini-m4-0/.nas-data/Developer/takt/main-wt-55/.local-checks/pixi-cache-fresh/pkgs/python-gil-3.14.6-h4df99d1_102",
+  "requested_specs": [],
+  "files": [],
+  "paths_data": {
+    "paths_version": 1,
+    "paths": []
+  },
+  "link": {
+    "source": "/Users/mini-m4-0/.nas-data/Developer/takt/main-wt-55/.local-checks/pixi-cache-fresh/pkgs/python-gil-3.14.6-h4df99d1_102",
+    "type": 1
+  }
+}

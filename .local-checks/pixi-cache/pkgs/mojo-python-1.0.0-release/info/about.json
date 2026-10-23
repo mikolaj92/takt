@@ -1,0 +1,9 @@
+{
+  "channels": [
+    "https://conda.anaconda.org/conda-forge/"
+  ],
+  "description": "Modular MAX",
+  "home": "https://www.modular.com/",
+  "license": "LicenseRef-Modular-Proprietary",
+  "summary": "The Modular MAX Platform."
+}
