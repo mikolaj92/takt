@@ -1,0 +1,18 @@
+{
+  "arch": "arm64",
+  "build": "py314h6c2aa35_0",
+  "build_number": 0,
+  "depends": [
+    "__osx >=11.0",
+    "python >=3.14,<3.15.0a0",
+    "python >=3.14,<3.15.0a0 *_cp314",
+    "python_abi 3.14.* *_cp314"
+  ],
+  "license": "Apache-2.0",
+  "license_family": "Apache",
+  "name": "tornado",
+  "platform": "osx",
+  "subdir": "osx-arm64",
+  "timestamp": 1786227125229,
+  "version": "6.5.8"
+}

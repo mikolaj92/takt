@@ -1,0 +1,20 @@
+{
+  "channels": [
+    "https://conda.anaconda.org/conda-forge/"
+  ],
+  "extra": {
+    "flow_run_id": "azure_20260518.2.1",
+    "recipe-maintainers": [
+      "jakirkham",
+      "minrk",
+      "SylvainCorlay",
+      "JohanMabille",
+      "davidbrochart"
+    ],
+    "remote_url": "https://github.com/conda-forge/zeromq-feedstock",
+    "sha": "69c6d89e75cab3a1b3f5c325e2709c4daa49cbdf"
+  },
+  "home": "http://zeromq.org/",
+  "license": "MPL-2.0",
+  "summary": "A high-performance asynchronous messaging library."
+}

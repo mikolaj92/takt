@@ -1,0 +1,6 @@
+#!/bin/bash
+
+exec "$CONDA_PREFIX/bin/_mojo-lldb-dap" \
+    --pre-init-command "?command script import $CONDA_PREFIX/lib/lldb-visualizers/lldbDataFormatters.py" \
+    --pre-init-command "?command script import $CONDA_PREFIX/lib/lldb-visualizers/mlirDataFormatters.py" \
+    "$@"

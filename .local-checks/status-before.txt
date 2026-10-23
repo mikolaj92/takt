@@ -1,0 +1,2 @@
+ M mojo/smoke/fala_stdio.mojo
+?? .local-checks/

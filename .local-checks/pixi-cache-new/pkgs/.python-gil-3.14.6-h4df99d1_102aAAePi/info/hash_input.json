@@ -1,0 +1,4 @@
+{
+  "channel_targets": "conda-forge main",
+  "freethreading": "no"
+}

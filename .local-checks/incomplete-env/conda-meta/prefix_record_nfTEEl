@@ -1,0 +1,120 @@
+{
+  "arch": "arm64",
+  "build": "hcf2aa1b_0",
+  "build_number": 0,
+  "depends": [
+    "__osx >=11.0"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "md5": "92e8690d170d46d768c32553458c0105",
+  "name": "libffi",
+  "platform": "osx",
+  "run_exports": {
+    "weak": [
+      "libffi >=3.7.0,<3.8.0a0"
+    ]
+  },
+  "sha256": "2c6ac9a6cd65af89b2bd448518bb1e13b44a2e48c0d469398e37bcfc0092e832",
+  "size": 43734,
+  "subdir": "osx-arm64",
+  "timestamp": 1783521647536,
+  "version": "3.7.0",
+  "fn": "libffi-3.7.0-hcf2aa1b_0.conda",
+  "url": "https://conda.anaconda.org/conda-forge/osx-arm64/libffi-3.7.0-hcf2aa1b_0.conda",
+  "channel": "https://conda.anaconda.org/conda-forge/",
+  "extracted_package_dir": "/Users/mini-m4-0/.nas-data/Developer/takt/main-wt-55/.local-checks/pixi-cache/pkgs/libffi-3.7.0-hcf2aa1b_0",
+  "requested_specs": [],
+  "files": [
+    "include/ffi.h",
+    "include/ffitarget.h",
+    "lib/libffi.8.dylib",
+    "lib/libffi.a",
+    "lib/libffi.dylib",
+    "lib/pkgconfig/libffi.pc",
+    "share/info/libffi.info",
+    "share/man/man3/ffi.3",
+    "share/man/man3/ffi_call.3",
+    "share/man/man3/ffi_prep_cif.3",
+    "share/man/man3/ffi_prep_cif_var.3"
+  ],
+  "paths_data": {
+    "paths_version": 1,
+    "paths": [
+      {
+        "_path": "include/ffi.h",
+        "path_type": "hardlink",
+        "sha256": "67938ce10b958b1499ade9079035ddde26c683253cf417ea39acb7e3eb019c6a",
+        "size_in_bytes": 16099
+      },
+      {
+        "_path": "include/ffitarget.h",
+        "path_type": "hardlink",
+        "sha256": "f76030281e23287eadaae1da97968de5b93564f5a15a9c6c24955f4ed8da1109",
+        "size_in_bytes": 2815
+      },
+      {
+        "_path": "lib/libffi.8.dylib",
+        "path_type": "hardlink",
+        "sha256": "7d8614ba5e0f3e71b1e7a8618dadf1f9f52ff2004a332af535c6c61b38d79cf8",
+        "size_in_bytes": 121488
+      },
+      {
+        "_path": "lib/libffi.a",
+        "path_type": "hardlink",
+        "sha256": "db3e862593886c0fccf02c026cac52bfc8c3d79879a7bf7db37e182439330ec3",
+        "size_in_bytes": 56168
+      },
+      {
+        "_path": "lib/libffi.dylib",
+        "path_type": "softlink",
+        "sha256": "7d8614ba5e0f3e71b1e7a8618dadf1f9f52ff2004a332af535c6c61b38d79cf8",
+        "sha256_in_prefix": "40c0a658bf925af8b68142fb1fb984c9ac6f5ac2abf04807ce1fb14347f8012c",
+        "size_in_bytes": 121488
+      },
+      {
+        "_path": "lib/pkgconfig/libffi.pc",
+        "path_type": "hardlink",
+        "sha256": "b226394abbf7d456c0bc96e9dca02f68cbebf75ce922d20ef2e8041eb5e2d5bc",
+        "sha256_in_prefix": "01aa596cff616f5841756284add84af035366bdf604d68b5d99409336340f1f8",
+        "size_in_bytes": 388,
+        "file_mode": "text",
+        "prefix_placeholder": "/Users/runner/miniforge3/conda-bld/libffi_1783521068237/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl"
+      },
+      {
+        "_path": "share/info/libffi.info",
+        "path_type": "hardlink",
+        "sha256": "31aac47d867bfb185527754c94be12a9f9a58a1f348188bbf723a4c34d5a2bdc",
+        "size_in_bytes": 43490
+      },
+      {
+        "_path": "share/man/man3/ffi.3",
+        "path_type": "hardlink",
+        "sha256": "aa4730e114c305943a2226a524ed8447dc6b66a184523999868e5433c2c9de74",
+        "size_in_bytes": 850
+      },
+      {
+        "_path": "share/man/man3/ffi_call.3",
+        "path_type": "hardlink",
+        "sha256": "2817ce7b78cb737d7b85b18b45899470f5f565f990d056d3d8cfabf6d779477f",
+        "size_in_bytes": 2333
+      },
+      {
+        "_path": "share/man/man3/ffi_prep_cif.3",
+        "path_type": "hardlink",
+        "sha256": "f60c5bb9d04b55988da13511a2c3edfa0f39fb6f51abfb8ac24d0b161c4169c0",
+        "size_in_bytes": 1158
+      },
+      {
+        "_path": "share/man/man3/ffi_prep_cif_var.3",
+        "path_type": "hardlink",
+        "sha256": "9365685252f33f13627c9303bc01883b764227132069260c19e94100ff442a51",
+        "size_in_bytes": 1321
+      }
+    ]
+  },
+  "link": {
+    "source": "/Users/mini-m4-0/.nas-data/Developer/takt/main-wt-55/.local-checks/pixi-cache/pkgs/libffi-3.7.0-hcf2aa1b_0",
+    "type": 1
+  }
+}

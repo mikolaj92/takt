@@ -1,0 +1,15 @@
+{
+  "build": "pyhc90fa1f_0",
+  "build_number": 0,
+  "depends": [
+    "__unix",
+    "python",
+    "python >=3.10"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "click",
+  "noarch": "python",
+  "subdir": "noarch",
+  "timestamp": 1783085363526,
+  "version": "8.4.2"
+}

@@ -1,0 +1,57 @@
+diff --git a/mojo/smoke/fala_stdio.mojo b/mojo/smoke/fala_stdio.mojo
+index 21b9540..c21e8be 100644
+--- a/mojo/smoke/fala_stdio.mojo
++++ b/mojo/smoke/fala_stdio.mojo
+@@ -30,7 +30,8 @@ def main() raises:
+         "{"
+         + "\"mode\":\"evaluate\","
+         + "\"plant_nodes\":[{\"id\":\"node\",\"value\":0.0,\"has_children\":false}],"
+-        + "\"layers\":[{\"layer\":0,\"tolerance\":0.1,\"min_confidence\":0.6,\"entropy_threshold\":0.35}],"
++        + "\"layers\":[{\"layer\":0,\"tolerance\":0.1,\"min_confidence\":0.95,\"entropy_threshold\":0.35},"
++        + "{\"layer\":1,\"tolerance\":0.1,\"min_confidence\":0.6,\"entropy_threshold\":0.35}],"
+         + "\"raw_signals\":["
+         + "{\"signal_id\":\"a\",\"deviation\":10.0,\"confidence\":0.9},"
+         + "{\"signal_id\":\"b\",\"deviation\":-10.0,\"confidence\":0.9}"
+@@ -38,8 +39,40 @@ def main() raises:
+         + "}"
+     )
+     var out_il = cascade_step(il)
+-    _check(out_il.find("\"outcome\":\"interlock\"") >= 0, "outcome interlock")
+-    _check(out_il.find("actuation\":null") >= 0 or out_il.find("\"actuation\":null") >= 0, "no actuation")
++    var parsed_il = Value(parse_string=out_il)
++    var il_signals = parsed_il.object()["signals"].copy()
++    _check(parsed_il.object()["outcome"].string() == "interlock", "leaf interlock")
++    _check(il_signals.object()["actuation"].is_null(), "no actuation")
++    _check(il_signals.object()["interlock"].is_object(), "leaf safety record")
++    _check(il_signals.object()["telemetry_count"].uint() == 2, "leaf only visits root")
++
++    # Root accepts agreeing detectors; child accepts constraints at 0.95 confidence,
++    # but would interlock on an incorrectly copied detector at 0.9 confidence.
++    var internal = il.replace("\"has_children\":false", "\"has_children\":true").replace(
++        "\"deviation\":10.0", "\"deviation\":0.9"
++    ).replace("\"deviation\":-10.0", "\"deviation\":0.9")
++    var parsed_internal = Value(parse_string=cascade_step(internal))
++    var internal_signals = parsed_internal.object()["signals"].copy()
++    _check(parsed_internal.object()["outcome"].string() == "actuation", "child receives constraints only")
++    _check(internal_signals.object()["interlock"].is_null(), "no copied detector interlock")
++    _check(internal_signals.object()["actuation"].is_object(), "internal actuation")
++    _check(internal_signals.object()["telemetry_count"].uint() == 2, "both layers evaluated")
++    var blocked_internal = Value(parse_string=cascade_step(
++        il.replace("\"has_children\":false", "\"has_children\":true")
++    ))
++    _check(blocked_internal.object()["signals"].object()["actuation"].is_null(), "merge preserves interlock")
++    _check(blocked_internal.object()["outcome"].string() == "interlock", "internal fail closed")
++
++    for request in [il, internal]:
++        var baseline = cascade_step(request)
++        _check(
++            cascade_step(request.replace("\"has_children\":", "\"layer\":73,\"has_children\":")) == baseline,
++            "node layer is metadata, not regulator selection",
++        )
++    _check(cascade_step(act.removesuffix("}") + ",\"raw_signals\":[]}") == out, "empty detectors preserve single layer")
++    var default_leaf = Value(parse_string=cascade_step("{}"))
++    _check(default_leaf.object()["outcome"].string() == "stable", "default leaf stable")
++    _check(default_leaf.object()["signals"].object()["telemetry_count"].uint() == 1, "default leaf visits root")
+ 
+     # Multi-tact run
+     var run = (

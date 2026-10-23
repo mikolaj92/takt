@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "h4df99d1_102",
+  "build_number": 102,
+  "depends": [
+    "cpython 3.14.6.*",
+    "python_abi * *_cp314"
+  ],
+  "license": "Python-2.0",
+  "name": "python-gil",
+  "noarch": "generic",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1786444152084,
+  "version": "3.14.6"
+}
