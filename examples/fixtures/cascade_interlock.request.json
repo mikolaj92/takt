@@ -5,7 +5,8 @@
     {"id": "node", "value": 0.0, "has_children": false, "parent_id": "", "layer": 0, "kind": "node"}
   ],
   "layers": [
-    {"layer": 0, "tolerance": 0.1, "min_confidence": 0.6, "entropy_threshold": 0.35}
+    {"layer": 0, "tolerance": 0.1, "min_confidence": 0.6, "entropy_threshold": 0.35},
+    {"layer": 1, "tolerance": 0.1, "min_confidence": 0.6, "entropy_threshold": 0.35}
   ],
   "raw_signals": [
     {"signal_id": "d0", "node_id": "node", "detector": "lint", "deviation": 10.0, "confidence": 0.9},
