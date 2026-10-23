@@ -42,9 +42,9 @@ Takt does **not** parse documents or git. The host builds the plant and maps act
 ## Layers
 
 `L0 … Ln-1` each have a `ProfilHomeostatyczny` (tolerances, entropy threshold, min confidence); the last chain entry is highest.
-In JSON `evaluate`, the adapter copies `raw_signals` to every regulator's own one-shot `extra_raw` buffer, not an evaluation queue.
-Each regulator consumes and clears its buffer only during its own `evaluate`; copying does not run fusion.
-A leaf with L0 and L1 evaluates only L1: L1 consumes detectors, while L0's buffer stays unused for that request.
+In JSON `evaluate`, the adapter copies `raw_signals` only to the highest regulator's one-shot `extra_raw` buffer.
+That regulator consumes and clears its buffer during `evaluate`; lower regulators receive only resulting constraints.
+A leaf with L0 and L1 evaluates only L1: L1 consumes detectors, while L0 does not evaluate.
 Descent passes resulting `aberration` / `confidence` constraints, not raw detectors; lower regulators report up. `TreeNode.layer` does not select a regulator.
 
 ## Core abstractions

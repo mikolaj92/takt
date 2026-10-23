@@ -307,10 +307,9 @@ def cascade_step(input_json: String) raises -> String:
         if raw[i].node_id != node.id:
             raise Error("takt: raw_signals node_id must match the evaluated node")
     if len(raw) > 0:
-        for layer_index in range(len(chain.layers)):
-            var regulator = chain.layers[layer_index].copy()
-            regulator.inject_raw(raw.copy())
-            chain.layers[layer_index] = regulator^
+        var regulator = chain.layers[chain.root_index].copy()
+        regulator.inject_raw(raw.copy())
+        chain.layers[chain.root_index] = regulator^
 
     var sequencer = TaktSequencer(plant, chain)
     var result = sequencer.run_one_tact(has_wave, wave)

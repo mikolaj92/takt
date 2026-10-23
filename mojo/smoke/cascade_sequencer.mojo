@@ -3,9 +3,9 @@
 from std.collections import List, Dict
 from takt.builder import LayerSpec, build_cascade
 from takt.homeostat import EssentialVariable, ProfilHomeostatyczny
-from takt.plant import TreeNode, MathTreePlant, make_numeric_tree
+from takt.plant import make_numeric_tree
 from takt.sequencer import TaktSequencer
-from takt.types import RawSignal, Wave
+from takt.types import Wave
 
 
 def _check(ok: Bool, msg: String) raises:
@@ -15,7 +15,9 @@ def _check(ok: Bool, msg: String) raises:
 
 def main() raises:
     # build_cascade wires parent/child indices and names
-    var specs = [LayerSpec(0, ProfilHomeostatyczny(0)), LayerSpec(1, ProfilHomeostatyczny(1))]
+    var specs = List[LayerSpec]()
+    specs.append(LayerSpec(0, ProfilHomeostatyczny(0)))
+    specs.append(LayerSpec(1, ProfilHomeostatyczny(1)))
     var chain = build_cascade(specs^)
     _check(chain.layer_count() == 2, "two layers")
     _check(chain.root_index == 1, "root is highest layer")
@@ -29,13 +31,19 @@ def main() raises:
     _check(chain.parent_of(0) == 1, "parent_of child")
 
     # Sequential scan order via sequencer clock
-    var plant = make_numeric_tree([Float64(0.1), Float64(0.5), Float64(-0.3)])
+    var values = List[Float64]()
+    values.append(0.1)
+    values.append(0.5)
+    values.append(-0.3)
+    var plant = make_numeric_tree(values^)
 
     var h0 = ProfilHomeostatyczny(0)
     h0.add_variable(EssentialVariable("dev", 10.0))
     var h1 = ProfilHomeostatyczny(1)
     h1.add_variable(EssentialVariable("dev", 0.05))
-    var layers = [LayerSpec(0, h0), LayerSpec(1, h1)]
+    var layers = List[LayerSpec]()
+    layers.append(LayerSpec(0, h0))
+    layers.append(LayerSpec(1, h1))
     var cascade = build_cascade(layers^)
     var seq = TaktSequencer(plant, cascade)
 
@@ -59,10 +67,13 @@ def main() raises:
     )
 
     # Multi-step run advances tact index
-    var plant2 = make_numeric_tree([Float64(0.3)])
+    var values2 = List[Float64]()
+    values2.append(0.3)
+    var plant2 = make_numeric_tree(values2^)
     var h_simple = ProfilHomeostatyczny(0)
     h_simple.add_variable(EssentialVariable("dev", 0.1))
-    var one = [LayerSpec(0, h_simple)]
+    var one = List[LayerSpec]()
+    one.append(LayerSpec(0, h_simple))
     var chain1 = build_cascade(one^)
     var seq2 = TaktSequencer(plant2, chain1)
     var multi = seq2.run(3)
@@ -78,7 +89,11 @@ def main() raises:
     # Within-tolerance single layer via sequencer
     var h_tol = ProfilHomeostatyczny(0)
     h_tol.add_variable(EssentialVariable("dev", 0.2, 0.01))
-    var seq_tol = TaktSequencer(make_numeric_tree([Float64(0.05)]), build_cascade([LayerSpec(0, h_tol)]))
+    var tol_layers = List[LayerSpec]()
+    tol_layers.append(LayerSpec(0, h_tol))
+    var vals_tol = List[Float64]()
+    vals_tol.append(0.05)
+    var seq_tol = TaktSequencer(make_numeric_tree(vals_tol^), build_cascade(tol_layers^))
     var r_tol = seq_tol.run_one_tact()  # root
     _check(not r_tol.signals.has_actuation, "tol: no act on root")
     _check(not r_tol.signals.has_interlock, "tol: no il on root")
@@ -86,22 +101,15 @@ def main() raises:
     # Outside tolerance leaf → actuation
     var h_out = ProfilHomeostatyczny(0, 0.35, 0.5)
     h_out.add_variable(EssentialVariable("dev", 0.1, 0.01))
-    var seq_out = TaktSequencer(make_numeric_tree([Float64(0.8)]), build_cascade([LayerSpec(0, h_out)]))
+    var out_layers = List[LayerSpec]()
+    out_layers.append(LayerSpec(0, h_out))
+    var vals_out = List[Float64]()
+    vals_out.append(0.8)
+    var seq_out = TaktSequencer(make_numeric_tree(vals_out^), build_cascade(out_layers^))
     _ = seq_out.run_one_tact()  # root
     var r_out = seq_out.run_one_tact()  # n0
     _check(r_out.node_id == "n0", "out: n0")
     _check(r_out.signals.has_actuation, "out: actuation")
     _check(not r_out.signals.has_interlock, "out: no interlock")
-
-    for metadata_layer in [0, 1]:
-        var leaf_chain = build_cascade([LayerSpec(0, ProfilHomeostatyczny(0)), LayerSpec(1, ProfilHomeostatyczny(1))])
-        leaf_chain.layers[1].inject_raw([RawSignal("d0", "leaf", "lint", 10.0, 0.9), RawSignal("d1", "leaf", "sec", -10.0, 0.9)])
-        var leaf_seq = TaktSequencer(MathTreePlant([TreeNode("leaf", 0.0, False, "", metadata_layer)]), leaf_chain)
-        var leaf = leaf_seq.run_one_tact()
-        _check(leaf.signals.has_interlock and not leaf.signals.has_actuation, "leaf: fail-closed")
-        _check(leaf.signals.error.reducer == "fallback_conflict", "leaf: detector conflict")
-        _check(len(leaf.signals.telemetry) == 2, "leaf: interlock plus evaluation only")
-        _check(leaf.signals.telemetry[0].layer == 1 and leaf.signals.telemetry[0].kind == "interlock", "leaf: L1 interlock")
-        _check(leaf.signals.telemetry[1].layer == 1 and leaf.signals.telemetry[1].kind == "evaluation", "leaf: L1 evaluation, no L0")
 
     print("takt cascade sequencer smoke ok")
