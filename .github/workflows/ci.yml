@@ -19,6 +19,26 @@ jobs:
         with:
           python-version: '3.12'
       - run: uv sync --frozen --all-extras
+      - run: uv build
+      - run: |
+          uv run --frozen python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          wheel, = Path("dist").glob("*.whl")
+          with ZipFile(wheel) as archive:
+              names = set(archive.namelist())
+          assert not any(name.split("/")[0] in {"mojo", "tools", "patches"} for name in names)
+          assert {
+              "takt/__init__.py",
+              "takt/_build.py",
+              "takt/_native.mojo",
+              "takt/mojo/takt/sequencer.mojo",
+              "takt/tools/setup_ember_json.sh",
+              "takt/tools/lib/mojo_env.sh",
+              "takt/patches/emberjson-mojo-1.0.patch",
+          } <= names
+          PY
       - run: pixi install --locked
       - run: pixi run core-smoke
       - run: uv run --frozen pytest
