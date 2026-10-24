@@ -32,7 +32,6 @@ def test_cascade_step_evaluate_actuation() -> None:
     result = takt.cascade_step(json.loads(EVAL.read_text(encoding="utf-8")))
     assert result.get("ok") is True
     assert result.get("outcome") in {"actuation", "stable", "interlock"}
-    # high deviation plant → actuation expected for fixture value 0.8
     assert result["outcome"] == "actuation"
     assert result["node_id"] == "hunk:0"
 
